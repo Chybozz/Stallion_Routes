@@ -1,0 +1,630 @@
+body {
+    font-family: 'Livvic';
+}
+
+.top-nav {
+    background-color: #EE940D;/* Yellowish golden color */
+}
+
+.navbar-brand {
+    color: #EE940D;
+}
+
+.nav-link {
+    color: #EE940D;
+}
+
+.nav-link.active.show {
+    color: #fff;
+}
+.nav-link:hover {
+    color: #fff;
+}
+
+.social-link .nav-link:hover {
+    color: #000;
+}
+
+.text-color {
+    color: #EE940D;
+}
+
+.text-card {
+    font-size: 12px;
+}
+
+thead {
+    font-size: 14px;
+}
+tbody {
+    font-size: 12px;
+}
+
+.btn-stallion {
+    background-color: #EE940D;
+    border-color: #EE940D;
+    color: #000;
+}
+
+.btn-stallion:hover {
+    background-color: #EE940D;
+    border-color: #EE940D;
+}
+/********** Home Page **********/
+
+/* Hero Section */
+.cover-img {
+    background-image: url('static/img/delivery_bike.png');
+    background-size:contain;
+    background-position: center;
+    position: relative;
+    padding: 190px 0;
+    color: #fff;
+}
+
+/* Overlay for text readability */
+.cover-img .overlay {
+    background-color: rgba(0, 0, 0, 0.65); /* Adjust opacity for readability */
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 15px;
+    text-align: center;
+    z-index: 1; /* Ensures overlay appears above background but below content */
+}
+
+/* Text Styling */
+.hero-title {
+    font-size: 3rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+}
+
+/* Button Styling */
+.download-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.download-btn:hover {
+    transform: translateY(-3px);
+}
+
+.coming-soon {
+    font-size: 1rem;
+    color: #ffffffb3;
+}
+
+/* Mode of Operation*/
+.opr-img {
+    width: 160px;
+    height: 160px;
+    background: url('static/img/delivery_bike.png');
+    background-position: center;
+    background-size: contain;
+    background-color: #EE940D;
+    border-radius: 100%;
+}
+
+/* Services Section */
+#services {
+    background-color: #e2e3e5; /* bg-secondary color with 50% opacity */
+}
+
+.bg-service {
+    background-color: #d4d5d7; 
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.icon-size {
+    font-size: 3.5rem;
+    color: #EE940D;
+}
+
+/* Our Team Section */
+#team {
+    padding: 60px 0;
+}
+
+.team-card {
+    margin: 0 auto;   /* Center-align cards on large screens */
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.team-card img {
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    background-color: #EE940D;
+}
+
+.socials a {
+    color: #000;
+    transition: color 0.3s;
+}
+.socials a:hover {
+    color: #fff; /* Match your theme color */
+}
+
+/* Faq Section */
+.accordion-button {
+    font-weight: 600;
+}
+.accordion-body {
+    color: #000;
+}
+
+/* Areas Covered Section */
+/* Outer container to hide overflow */
+.scroll-wrapper {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  /* Inner container for animation */
+  .scroll-container {
+    display: inline-flex;
+    animation: scroll 10s linear infinite;
+  }
+
+  /* Pause animation on hover */
+  .scroll-wrapper:hover .scroll-container {
+    animation-play-state: paused;
+  }
+
+  /* Each item in the scroll */
+  .scroll-item {
+    display: inline-block;
+    padding: 8px 38px;
+    margin: 0 35px;
+    font-size: 1em;
+    color: #333;
+    background-color: #EE940D;
+    border-radius: 10px;
+  }
+
+  /* Keyframes for infinite scroll */
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+/* Contact Us Section */
+#contact {
+    background-color: #f8f9fa; /* Soft background color */
+}
+
+#contact h2 {
+    color: #333;
+    font-size: 2rem;
+}
+
+.contact-info {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.contact-info h5 {
+    color: #333;
+}
+
+.contact-info p {
+    font-size: 1rem;
+    color: #555;
+}
+
+.contact-info i {
+    font-size: 1.2rem;
+}
+
+/* Map Container */
+.map-container {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/********** End Home Page **********/
+
+/********** Company Page **********/
+/* About Section */
+.about-section {
+    color: #333;
+    padding: 4rem 0;
+}
+
+.about-section h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.about-section p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.info-box {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-box h3 {
+    color: #ff6b09;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.info-box p {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Accordion Styling */
+.accordion-button:not(.collapsed) {
+    background-color: #EE940D;
+    color: #fff;
+}
+
+/* Meet Team Members Section */
+.team-card {
+    background: #ffffff;
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.team-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+    background-color: #EE940D;
+}
+
+/* Profile Image Container */
+.img-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: -35px auto 5px;
+    background-color: #EE940D;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.profile-img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    /* border-radius: 50%; */
+}
+
+/* Title and Position */
+.card-title {
+    font-size: 1.25rem;
+    color: #333333;
+}
+.position {
+    font-size: 1rem;
+    color: #000;
+}
+
+/* Social Icons Styling */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+.social-link {
+    font-size: 1.2rem;
+    color: #000;
+    transition: color 0.3s;
+}
+.social-link:hover {
+    color: #fff;
+}
+/********** End Company Page **********/
+
+/* Back-to-Top Button */
+#back-to-top {
+    position: fixed;
+    bottom: 60px;
+    right: 20px;
+    background-color: #EE940D;
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    font-size: 18px;
+    display: none;
+}
+
+.form-group label {
+    color: #333;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    color: #EE940D;
+    border-radius: 10px 10px 0 0;
+}
+
+.card-body {
+    padding: 2rem;
+}
+.p-bottom p {
+    margin-bottom: 5px;
+}
+
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background: #343a40;
+    color: white;
+    position: fixed;
+    padding: 20px 10px;
+}
+
+.dashboard-container {
+    margin-left: 250px;
+    padding: 20px;
+    /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); */
+}
+.hidden { display: none; }
+
+footer {
+    font-size: 14px; 
+}
+
+.badge-highlight {
+    animation: highlight 0.5s ease-in-out;
+}
+
+@keyframes highlight {
+    0% { background-color: yellow; }
+    100% { background-color: red; }
+}
+
+/* Customer Rating */
+.star-rating {
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.star {
+    font-size: 4rem;
+    color: #ccc; /* Default star color */
+    transition: color 0.3s ease-in-out;
+}
+
+.star:hover,
+.star:hover .star {
+    color: #EE940D; /* Highlight color on hover */
+}
+
+.star.filled {
+    color: #EE940D; /* Filled star color */
+}
+
+#rider-map {
+    height: 90vh;
+    width: 100%;
+}
+
+/************************ Dashboard Style **********************/
+.nav-tabs .nav-link {
+    color: #333 !important;
+}
+
+.nav-tabs .nav-link.active {
+    color: #EE940D !important;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #EE940D !important;
+}
+
+.d-sidebar {
+    width: 250px;
+    background-color: #343a40;
+    color: #EE940D;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    padding: 20px 10px;
+    transition: width 0.3s;
+  }
+
+  .d-sidebar.collapsed {
+    width: 90px;
+  }
+
+  .d-sidebar .nav-link {
+    color: #EE940D;
+    margin: 7px 0;
+  }
+
+  .d-sidebar .nav-link:hover {
+    color: #fff;
+  }
+
+  .d-sidebar.collapsed .nav-link span {
+    display: none;
+  }
+
+  .d-sidebar.collapsed .nav-link {
+    text-align: left;
+  }
+
+  .d-sidebar.collapsed h5 {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 250px;
+    padding: 20px;
+    width: calc(100% - 250px);
+    transition: margin-left 0.3s, width 0.3s;
+  }
+
+  .main-content.collapsed {
+    margin-left: 90px;
+    width: calc(100% - 90px);
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .header .profile {
+    position: relative;
+  }
+
+  .header .profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .header .profile .dropdown-menu {
+    position: absolute;
+    top: 50px;
+    left: -130px;
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -8px;
+    right: 5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .top-performer {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+  }
+
+  .top-performer img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+  }
+/************************ End Dashboard Style **********************/
+
+/* Responsive padding adjustments */
+@media (max-width: 767.33px) {
+    /* Hero Section */
+    .cover-img {
+        background-size: contain;
+        padding: 210px 0;
+    }
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    .download-btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        margin-bottom: 10px;
+    }
+
+    .team-card {
+        max-width: 95%;
+        margin-bottom: 20px;
+    }
+
+    /** dashboard responsiveness **/
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    
+    .dashboard-container {
+        margin-left: 0px;
+        padding: 10px;
+    }
+
+    /** Admin Dashboard responsiveness **/
+    .d-sidebar {
+        width: 100%;
+        position: relative;
+        display: none;
+    }
+
+    .d-sidebar.collapsed .nav-link span {
+        display: inline-flex;
+    }
+
+    .d-sidebar.collapsed h5 {
+        display: block;
+    }
+
+    .d-sidebar.collapsed {
+        width: 100%;
+        display: block;
+    }
+
+    .main-content {
+        margin-left: 0px;
+        width: 100%;
+    }
+
+    .main-content.collapsed {
+        margin-left: 0px;
+        width: 100%;
+    }
+
+    .header .profile img {
+        width: 30px;
+        height: 30px;
+    }
+}

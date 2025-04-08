@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stallion Routes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Livvic:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Smartsupp Live Chat script -->
+    <script type="text/javascript">
+        var _smartsupp = _smartsupp || {};
+        _smartsupp.key = '3fd23b179800b8fa33399718559b6ae732168ec0';
+        _smartsupp.offsetY = 110; // move along the Y axis by 100 pixels
+        _smartsupp.color = '#EE940D'; // change the color of the chat bubble to red
+        window.smartsupp||(function(d) {
+        var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+        s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+        c.type='text/javascript';c.charset='utf-8';c.async=true;
+        c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+        })(document);
+    </script>
+    <noscript> Powered by <a href=“https://www.smartsupp.com” target=“_blank”>Smartsupp</a></noscript>
+</head>
+<body>
+    <header class="py-0 d-none d-sm-block bg-header">
+        <nav class="navbar navbar-expand bg-white">
+            <div class="container-fluid">
+                <span class="navbar-text me-auto text-color">
+                    no-reply@your-mail.com;
+                    (+234)906 897 3810
+                </span>
+                <ul class="navbar-nav social-link">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi-twitter"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi-facebook"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi-instagram"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi-linkedin"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi-whatsapp"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top p-0">
+        <div class="container-fluid">
+            <a class="navbar-brand text-color" href="#">
+                <img src="{{url_for('static', filename='img/stallion_routes.png')}}" class="img-fluid" width="70px" alt="Stallion Routes" srcset="">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active show" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/company">Company</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#faq">Faqs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('signup') }}" class="btn btn-outline-warning">Get Started</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="hero text-center cover-img" style="background-image: url('static/img/delivery_bike.png');">
+        <div class="overlay">
+            <div class="container text-white">
+                <h1 class="display-4 hero-title">Driven by Precision, Defined by Trust</h1>
+                <p class="lead hero-subtitle">Your reliable delivery service.</p>
+                <div>
+                    <a href="#rider" class="btn btn-dark m-1">Become a Rider</a>
+                </div>
+                <div class="download-buttons mt-3">
+                    <a href="#" class="btn btn-success text-white download-btn">
+                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" class="mr-1.5" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M747.4 535.7c-.4-68.2 30.5-119.6 92.9-157.5-34.9-50-87.7-77.5-157.3-82.8-65.9-5.2-138 38.4-164.4 38.4-27.9 0-91.7-36.6-141.9-36.6C273.1 298.8 163 379.8 163 544.6c0 48.7 8.9 99 26.7 
+                            150.8 23.8 68.2 109.6 235.3 199.1 232.6 46.8-1.1 79.9-33.2 140.8-33.2 59.1 0 89.7 33.2 141.9 33.2 90.3-1.3 167.9-153.2 190.5-221.6-121.1-57.1-114.6-167.2-114.6-170.7zm-105.1-305c50.7-60.2 46.1-115 44.6-134.7-44.8 2.6-96.6 30.5-126.1 64.8-32.5 36.8-51.6 82.3-47.5 133.6 48.4 3.7 92.6-21.2 129-63.7z"></path></svg>
+                        Download On App Store
+                    </a>
+                    <a href="#" class="btn btn-success text-white download-btn">
+                        <svg width="24" height="23" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2" viewBox="0 0 13 16">
+                            <path d="m6.848 7.641-6.785 7.03.001.004A1.825 1.825 0 0 0 1.834 16c.339 0 .657-.09.93-.246l.022-.013 7.637-4.301L6.848 7.64Z" fill="#EA4335"></path><path d="m13.713 6.444-.007-.004-3.297-1.866L6.694 7.8l3.728 3.638 3.28-1.847c.575-.303.965-.894.965-1.577 
+                            0-.677-.385-1.266-.954-1.57Z" fill="#FBBC04"></path><path d="M.062 1.33c-.04.146-.062.3-.062.46v12.42c0 .16.021.315.062.46l7.02-6.849L.061 1.33Z" fill="#4285F4"></path><path d="m6.898 8 3.512-3.427L2.78.256A1.871 1.871 0 0 0 1.834 0C.986 0 .27.563.063 1.327v.002L6.897 8Z" fill="#34A853"></path></svg>
+                        Download On Google Play
+                    </a>
+                    <p class="coming-soon mt-2">Coming Soon...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mode of Operation -->
+    <section id="operation" class="py-5">
+        <div class="container">
+            <h3 class="text-center mb-3 fw-bold">Mode of Operation</h3>
+            <div class="row text-center">
+                <p>We are dedicated to providing top-notch delivery services, focusing on customer satisfaction, real-time tracking and timely delivery.</p>
+                <div class="col-md-4">
+                    <div class="opr-img mx-auto" style="background-image: url('static/img/delivery_bike.png');"></div>
+                    <h5 class="h5 h-md-3 mt-3 fw-bold">Request Delivery</h5>
+                    <p>Request delivery through our app, providing details of the package and delivery location.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="opr-img mx-auto" style="background-image: url('static/img/delivery_bike.png');"></div>
+                    <h5 class="h5 h-md-3 mt-3 fw-bold">Pick-Up</h5>
+                    <p>Our riders pick up your packages from the designated location.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="opr-img mx-auto" style="background-image: url('static/img/delivery_bike.png');"></div>
+                    <h5 class="h5 h-md-3 mt-3 fw-bold">Delivery</h5>
+                    <p>We deliver your packages safely to the specified address in the shortest time possible.</p>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <div class="opr-img mx-auto" style="background-image: url('static/img/delivery_bike.png');"></div>
+                    <h5 class="h5 h-md-3 mt-3 fw-bold">Payment</h5>
+                    <p>Payment is made in the app before delivery, ensuring a seamless and efficient process.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="opr-img mx-auto" style="background-image: url('static/img/delivery_bike.png');"></div>
+                    <h5 class="h5 h-md-3 mt-3 fw-bold">Fast Delivery</h5>
+                    <p>Our riders are trained to deliver your packages in the shortest time possible.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="opr-img mx-auto" style="background-image: url('static/img/delivery_bike.png');"></div>
+                    <h5 class="h5 h-md-3 mt-3 fw-bold">Real-time Tracking</h5>
+                    <p>Track your delivery in real-time through our app, ensuring full transparency.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Services -->
+    <section id="services" class="py-5 bg-secondary-subtle">
+        <div class="container">
+            <h3 class="text-center mb-3 fw-bold">Our Services</h3>
+            <div class="row py-3 mb-4">
+                <div class="col-md-6 order-2 order-md-2">
+                    <h5 class="h5 h-md-3 text-color fw-bold">Waybill Delivery</h5>
+                    <p class="m-0">Reliable waybill delivery for documents and packages across the city.
+                        we pickup from designated spot/location and deliver to your doorstep.
+                    </p>
+                </div>
+                <div class="col-md-6 order-1 order-md-2 icon-size text-color text-start text-md-end">
+                    <i class="bi bi-truck"></i>
+                </div>
+            </div>
+            <div class="row py-3 mb-4 bg-service">
+                <div class="col-md-6 icon-size text-color text-start">
+                    <i class="bi bi-bag-fill"></i>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="h5 h-md-3 text-color fw-bold">Hand-Off</h5>
+                    <p class="m-0"> We provide hand-off services for your packages, 
+                        ensuring that they are delivered to the right person at the right time.
+                    </p>
+                </div>
+            </div><div class="row py-3 mb-4">
+                <div class="col-md-6 order-2 order-md-2">
+                    <h5 class="h5 h-md-3 text-color fw-bold">Food Delivery</h5>
+                    <p class="m-0">We partner with restaurants to deliver your favorite meals to your doorstep,
+                        ensuring that you enjoy your meal in the comfort of your home.
+                    </p>
+                </div>
+                <div class="col-md-6 order-1 order-md-2 icon-size text-color text-start text-md-end">
+                    <i class="bi bi-basket"></i>
+                </div>
+            </div>
+            <div class="row py-3 bg-service">
+                <div class="col-md-6 icon-size text-color text-start">
+                    <i class="bi bi-box2-fill"></i>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="h5 h-md-3 text-color fw-bold">Express Delivery</h5>
+                    <p class="m-0"> Coming Soon: We provide express delivery services for your urgent packages,
+                        ensuring that they are delivered in the shortest time possible.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Team -->
+    <section id="team" class="py-5">
+        <div class="container">
+            <h3 class="text-center mb-4 fw-bold">Our Team</h3>
+            <div class="row justify-content-center">
+                <div class="col-12 col-sm-10 col-md-6 col-lg-4 mb-4">
+                    <div class="card team-card text-center mx-auto">
+                        <div class="card-body">
+                            <img src="{{url_for('static', filename='img/delivery_bike.png')}}" alt="Photo of Iloh .C. Daniel" class="img-fluid" loading="lazy">
+                            <h4 class="card-title py-2 fw-bold">ILOH .C. DANIEL (B.Sc)</h4>
+                            <h5>CEO / Founder</h5>
+                            <p class="card-text">A dedicated and business-oriented personality that aims for tech-driven solutions.</p>
+                            <p class="socials">
+                                <a href="#" aria-label="Facebook"><i class="bi bi-facebook mx-1"></i></a>
+                                <a href="#" aria-label="Instagram"><i class="bi bi-instagram mx-1"></i></a>
+                                <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp mx-1"></i></a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-10 col-md-6 col-lg-4 mb-4">
+                    <div class="card team-card text-center mx-auto">
+                        <div class="card-body">
+                            <img src="{{url_for('static', filename='img/delivery_bike.png')}}" alt="Photo of Anene Martins O." class="img-fluid" loading="lazy">
+                            <h4 class="card-title py-2 fw-bold">ANENE MARTINS O. (B.Eng)</h4>
+                            <h5>Co-Founder / Manager</h5>
+                            <p class="card-text">Passionate, motivated, and tech-driven individual dedicated to building tech solutions.</p>
+                            <p class="socials">
+                                <a href="#" aria-label="Facebook"><i class="bi bi-facebook mx-1"></i></a>
+                                <a href="#" aria-label="Instagram"><i class="bi bi-instagram mx-1"></i></a>
+                                <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp mx-1"></i></a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-10 col-md-6 col-lg-4 mb-4">
+                    <div class="card team-card text-center mx-auto">
+                        <div class="card-body">
+                            <img src="{{url_for('static', filename='img/delivery_bike.png')}}" alt="Photo of Ibeh Johnpaul C." class="img-fluid" loading="lazy">
+                            <h4 class="card-title py-2 fw-bold">IBEH JOHNPAUL C. (B.Eng)</h4>
+                            <h5>Assistant Manager</h5>
+                            <p class="card-text">A dedicated and business-oriented personality with a focus on tech-driven solutions.</p>
+                            <p class="socials">
+                                <a href="#" aria-label="Facebook"><i class="bi bi-facebook mx-1"></i></a>
+                                <a href="#" aria-label="Instagram"><i class="bi bi-instagram mx-1"></i></a>
+                                <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp mx-1"></i></a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-5 bg-secondary-subtle">
+        <div class="container">
+            <h3 class="text-center mb-4 fw-bold">Frequently Asked Questions</h3>
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item mb-2">
+                    <h3 class="accordion-header" id="headingOne">
+                        <button class="accordion-button shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            What is waybill delivery, and how does it work?
+                        </button>
+                    </h3>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Waybill delivery allows you to send packages directly from the pick-up point to your address. Our riders ensure timely delivery, keeping you updated every step of the way.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item mb-2">
+                    <h3 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            How do i create account?
+                        </button>
+                    </h3>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            You can track your delivery through our app, where we provide real-time location updates of your package for full transparency.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item mb-2">
+                    <h3 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseTwo">
+                            How do i update my profile?
+                        </button>
+                    </h3>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            You can track your delivery through our app, where we provide real-time location updates of your package for full transparency.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item mb-2">
+                    <h3 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseTwo">
+                            How can I track my delivery?
+                        </button>
+                    </h3>
+                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            You can track your delivery through our app, where we provide real-time location updates of your package for full transparency.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item mb-2">
+                    <h3 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseTwo">
+                            What is Surge fee?
+                        </button>
+                    </h3>
+                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            You can track your delivery through our app, where we provide real-time location updates of your package for full transparency.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item mb-2">
+                    <h3 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseTwo">
+                            Why do we charge surge fee?
+                        </button>
+                    </h3>
+                    <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            You can track your delivery through our app, where we provide real-time location updates of your package for full transparency.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item mb-2">
+                    <h3 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseThree">
+                            What areas do you currently cover?
+                        </button>
+                    </h3>
+                    <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            We currently serve the Abakaliki area, with upcoming expansions to Enugu, Port Harcourt, Lagos, Uyo, and Awka.
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more FAQs as needed -->
+            </div>
+        </div>
+    </section>
+
+    
+    <section id="faq" class="py-5">
+        <div class="container">
+            <div class="text-center">
+                <h3 class="fw-bold">States We Cover</h3>
+                <p>We are currently serving in:
+                    <strong class="text-success">Ebonyi and Enugu</strong>
+                </p>
+                <p>Coming Soon...</p>
+            </div>
+            <div class="scroll-wrapper">
+                <div class="scroll-container">
+                    <!-- Original set of items -->
+                    <div class="scroll-item">Aba</div>
+                    <div class="scroll-item">Abuja</div>
+                    <div class="scroll-item">Awka</div>
+                    <div class="scroll-item">Ebonyi</div>
+                    <div class="scroll-item">Enugu</div>
+                    <div class="scroll-item">Lagos</div>
+                    <div class="scroll-item">Port Harcourt</div>
+                    <div class="scroll-item">Uyo</div>
+                    <!-- Duplicate set for seamless scroll -->
+                    <div class="scroll-item">Aba</div>
+                    <div class="scroll-item">Abuja</div>
+                    <div class="scroll-item">Awka</div>
+                    <div class="scroll-item">Ebonyi</div>
+                    <div class="scroll-item">Enugu</div>
+                    <div class="scroll-item">Lagos</div>
+                    <div class="scroll-item">Port Harcourt</div>
+                    <div class="scroll-item">Uyo</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="rider" class="py-5 bg-secondary-subtle">
+        <div class="container">
+            <h3 class="text-center fw-bold">Become a Rider</h3>
+            <div class="text-center">
+                <img src="{{url_for('static', filename='img/delivery_bike.png')}}" alt="Delivery Bike" class="img-fluid" width="100px" loading="lazy">
+                <img src="{{url_for('static', filename='img/keke.png')}}" alt="Delivery keke" class="img-fluid" width="100px" loading="lazy">
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="h5 h-md-3">Why Join Us?</h3>
+                    <p>Join our team of dedicated riders and enjoy the following benefits:</p>
+                    <ul>
+                        <li>Flexible working hours</li>
+                        <li>Competitive pay</li>
+                        <li>Opportunity for growth</li>
+                        <li>Access to training and development</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h3 class="h5 h-md-3">How to Apply</h3>
+                    <p>Joining our team is easy. Simply follow these steps:</p>
+                    <ol>
+                        <li>Click on the "Become a Rider" button</li>
+                        <li>Fill out the application form</li>
+                        <li>Submit the form</li>
+                        <li>Wait for our team to contact you</li>
+                    </ol>
+                    <a href="#" class="btn btn-stallion">Become a Rider</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Us -->
+    <section id="contact" class="py-5">
+        <div class="container">
+            <h3 class="text-center mb-5 fw-bold">Contact Us</h3>
+            <div class="row">
+                <!-- Contact Information -->
+                <div class="col-md-6 mb-4">
+                    <div class="contact-info p-4 rounded shadow-sm h-100">
+                        <h5 class="mb-4 fw-semibold">Get In Touch</h5>
+                        <p class="mb-3">
+                            <i class="bi bi-geo-alt-fill text-color me-2"></i>
+                            <strong>Location:</strong> Dr. Urochukwu and Nsugbe, Abakaliki
+                        </p>
+                        <p class="mb-3">
+                            <i class="bi bi-telephone-fill text-color me-2"></i>
+                            <strong>Phone:</strong> +123 456 7890
+                        </p>
+                        <p class="mb-3">
+                            <i class="bi bi-envelope-fill text-color me-2"></i>
+                            <strong>Email:</strong> contact@deliveryservice.com
+                        </p>
+                    </div>
+                </div>
+                <!-- Map -->
+                <div class="col-md-6">
+                    <div class="map-container shadow-sm rounded overflow-hidden">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3162.343456934856!2d7.497858115578755!3d6.324676427194896!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x104383cd0f5e8a5b%3A0xe73f1b9cf3f8471!2sNsugbe%2C%20Abakaliki!5e0!3m2!1sen!2sng!4v1234567890!5m2!1sen!2sng"
+                            width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back-to-Top Button -->
+    <a href="#" id="back-to-top" title="Back to top">↑</a>
+    
+    <!-- Footer -->
+    <footer class="container-fluid text-center text-white sticky-bottom py-3 bg-dark">
+        <label> &copy; 2024 All Rights Reserved. Stallion Group Nig.</label>
+    </footer>
+
+    <!-- JavaScript to Show/Hide Button on Scroll -->
+    <script>
+        window.onscroll = function() {
+            const backToTopButton = document.getElementById("back-to-top");
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        };
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+</body>
+</html>

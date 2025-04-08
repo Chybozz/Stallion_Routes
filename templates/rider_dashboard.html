@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Dashboard - Stallion Routes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Livvic:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand p-0" href="/">
+                <img src="{{url_for('static', filename='img/stallion_logo.png')}}" class="img-fluid" width="40px" alt="Stallion Routes" srcset="">
+                Stallion Routes
+            </a>
+            <button class="navbar-toggler border-light d-block d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+    <div class="container-fluid  p-0">
+        <div class="sidebar text-card collapse navbar-collapse d-md-block" id="navbarNav">
+            <h5>Rider Dashboard</h5>
+            <p><div class="fs-3"><span id="greeting"></span></div></p>
+            <p>{% if filename %}
+                    <div class="text-center">
+                        {% for rider in filename %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ filename) }}" 
+                                alt="Rider Photo" width="100" height="100" style="border-radius: 50%;">
+                        {% endfor %}
+                    </div>
+                {% endif %}</p>
+            <p><span id="r-mail" class="hidden">{{ rider_email }}</span></p>
+            <p><span id="r-id" class="hidden">{{ rider_id }}</span></p>
+            <p><i class="bi-person-fill"></i> Name: <span id="rider-name">{{ rider_name }}</span></p>
+            <p><i class="bi-envelope-fill"></i> Email: <span id="rider-email">{{ rider_email }}</span></p>
+            <p><i class="bi-telephone-fill"></i> Phone: <span id="rider-phone">{{ rider_phone }}</span></p>
+            <p><i class="bi-calendar-day-fill"></i> Date: <span id="date">{{ current_date }}</span></p>
+            <p><i class="bi-clock-fill"></i> Time: <span id="time-display">{{ current_time }}</span></p>
+            <a href="/rider_settings" class="btn btn-light w-100 mb-3">Settings</a>
+            <a href="{{ url_for('rider_login') }}" class="btn btn-outline-light w-100">Logout</a>
+        </div>
+        <div class="container-fluid p-0 bg-white">
+            <div class="container-fluid p-0">
+                <div class="dashboard-container">
+                    <span id="notify" class="start-100 badge rounded-pill bg-danger">
+                        0
+                    </span>
+                    <span class="float-end">Amount Earned <span>₦ 0</span></span>
+                    <div class="d-flex gap-2 my-3">
+                        <button id="new-btn-deliveries" class="btn btn-stallion hidden">New Deliveries</button>
+                        <button id="active-btn-deliveries" class="btn btn-stallion">Active Deliveries</button>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-8 col-md-12 col-12 order-2 order-lg-1">
+                            <!-- New Deliveries Items -->
+                            <form id="accept_delivery" action="/rider_dashboard" method="post">
+                                {% if delivery_requests %}
+                                <div id="new-deliveries" class="mt-2">
+                                    <h5 class="text-start">New Delivery Requests</h5>
+                                    {% for request in delivery_requests %}
+                                    <div class="card text-card text-capitalize mb-3" id="request-card-{{ request[0] }}">
+                                        <div class="card-header bg-dark">
+                                            <strong>Request ID: {{ request[0] }} <span class="float-end">{{ loop.index }}</span></strong>
+                                        </div>
+                                        <div class="card-body p-bottom p-3">
+                                            <p><strong>Delivery Type:</strong> {{ request[1] }}</p>
+                                            <p><strong>Customer Name:</strong> {{ request[2] }}</p>
+                                            <p><strong>Customer Number:</strong> {{ request[3] }}</p>
+                                            {% if request[1] == 'handoff' %}
+                                            <p><strong>Recipient Name:</strong> {{ request[4] }}</p>
+                                            <p><strong>Recipient Phone:</strong> {{ request[5] }}</p>
+                                            {% endif %}
+                                            {% if request[1] == 'food' %}
+                                            <p><strong>Restaurant Name:</strong> {{ request[6] }}</p>
+                                            <p><strong>Recipient Name:</strong> {{ request[4] }}</p>
+                                            <p><strong>Recipient Phone:</strong> {{ request[5] }}</p>
+                                            {% endif %}
+                                            <p><strong>Pickup Address:</strong> {{ request[7] }}</p>
+                                            <p><strong>Delivery Address:</strong> {{ request[8] }}</p>
+                                            <p><strong>Package:</strong> {{ request[9] }}</p>
+                                            <p><strong>Date:</strong> {{ request[10] }}</p>
+                                            <p><strong>Time:</strong> {{ request[11] }}</p>
+                                            <p><strong>Status:</strong> {{ request[12] }}</p>
+                                        </div>
+                                        <input type="hidden" name="reqID" value="{{ request[0] }}">
+                                        <div class="card-footer text-end">
+                                            <button type="button" name="action" value="accept" class="btn btn-sm btn-stallion text-card accept-btn" data-request-id="{{ request[0] }}">Accept Request</button>
+                                            <button type="button" name="action" value="track" class="btn btn-sm btn-stallion text-card track-btn" data-request-id="{{ request[0] }}">Track Package</button>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div id="new-deliveries" class="text-capitalize text-center py-3 mt-3">
+                                    <p class="fw-bold fs-5 mt-5 m-0">No new delivery requests yet.</p>
+                                    <span class="text-card">wait for the customers to initiate a request.</span>
+                                </div>
+                                {% endif %}
+                            </form>
+
+                            <!-- Accepted Deliveries Items -->
+                            <form id="accept_delivery" action="/deliver" method="post">
+                                {% if accepted_requests %}
+                                <div id="active-deliveries" class="hidden mt-2">
+                                    <h5 class="text-start">Active Deliveries</h5>
+                                    {% for request in accepted_requests %}
+                                    <div class="card text-card text-capitalize mb-3" id="request-card-{{ request[0] }}">
+                                        <div class="card-header bg-dark">
+                                            <strong>Request ID: {{ request[0] }} <span class="float-end">{{ loop.index }}</span></strong>
+                                        </div>
+                                        <div class="card-body p-bottom p-3">
+                                            <p><strong>Delivery Type:</strong> {{ request[1] }}</p>
+                                            <p><strong>Customer Name:</strong> {{ request[2] }}</p>
+                                            <p><strong>Customer Number:</strong> {{ request[3] }}</p>
+                                            {% if request[1] == 'handoff' %}
+                                            <p><strong>Recipient Name:</strong> {{ request[4] }}</p>
+                                            <p><strong>Recipient Phone:</strong> {{ request[5] }}</p>
+                                            {% endif %}
+                                            {% if request[1] == 'food' %}
+                                            <p><strong>Restaurant Name:</strong> {{ request[6] }}</p>
+                                            <p><strong>Recipient Name:</strong> {{ request[4] }}</p>
+                                            <p><strong>Recipient Phone:</strong> {{ request[5] }}</p>
+                                            {% endif %}
+                                            <p><strong>Pickup Address:</strong> {{ request[7] }}</p>
+                                            <p><strong>Delivery Address:</strong> {{ request[8] }}</p>
+                                            <p><strong>Package:</strong> {{ request[9] }}</p>
+                                            <p><strong>Date:</strong> {{ request[10] }}</p>
+                                            <p><strong>Time:</strong> {{ request[11] }}</p>
+                                            <p><strong>Status:</strong> {{ request[12] }}</p>
+                                        </div>
+                                        <input type="hidden" name="reqID" value="{{ request[0] }}">
+                                        <div class="card-footer text-end">
+                                            <span class="status-container"></span>
+                                            {% if request[12] == 'awaiting confirmation' %}
+                                                <span class="text-success">Await Confirmation</span>
+                                            {% else %}
+                                                <button type="button" value="deliver" class="btn btn-sm btn-danger text-card deliver-btn" data-request-id="{{ request[0] }}">Mark as Delivered</button>
+                                            {% endif %}
+                                            <button type="button" value="track" class="btn btn-sm btn-stallion text-card tracks-btn" data-request-id="{{ request[0] }}" data-pickup="{{ request[7] }}" data-delivery="{{ request[8] }}">Track Package</button>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div id="active-deliveries" class="hidden text-capitalize text-center py-3 mt-3">
+                                    <p class="fw-bold fs-5 mt-5 m-0">No active deliveries yet.</p>
+                                    <span class="text-card"> Accept requests from new deliveries.</span>
+                                </div>
+                                {% endif %}
+                            </form>
+
+                            <div class="mt-4">
+                                <div id="rider-location-map" class="text-start" style="display: none;">
+                                    <p><strong>Rider's Location (Live Map):</strong></p>
+                                    <div id="rider-map" class="border border-black border-2 rounded-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-12 col-12 order-1 order-lg-2">
+                            <h5 class="mt-4">Delivery History</h5>
+                            {% if completed_deliveries %}
+                            <div id="delivery-history" class="text-card p-bottom border border-1 rounded-2 p-3 mt-1">
+                                {% for request in completed_deliveries %}
+                                <strong>Request ID: {{ request[0] }}</strong>
+                                <p>Delivery Type: {{ request[1] }}</p>
+                                <p>Status: {{ request[3] }}</p>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p>No completed deliveries yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back-to-Top Button -->
+    <a href="#" id="back-to-top" title="Back to top">↑</a>
+
+    <div class="py-5"></div>
+    
+    <footer class="fixed-bottom text-center text-white py-3 bg-dark">
+        <p class="m-0">&copy; 2024, All Rights Reserved. Designed by <a class="text-color" href="#">Stallion Routes</a></p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMpQ311SaX_8SaFEGORjCV6wVrC2T2Q8Y&libraries=places"></script>
+    
+    <!-- JavaScript to Show/Hide Button on Scroll -->
+    <script>
+        window.onscroll = function() {
+            const backToTopButton = document.getElementById("back-to-top");
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        };
+    </script>
+    <script src="{{ url_for('static', filename='js/riders.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+</body>
+</html>

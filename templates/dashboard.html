@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Stallion Routes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Livvic:wght@400;700&display=swap" rel="stylesheet">
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMpQ311SaX_8SaFEGORjCV6wVrC2T2Q8Y" async defer></script> -->
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand p-0" href="/">
+                <img src="{{url_for('static', filename='img/stallion_logo.png')}}" class="img-fluid" width="40px" alt="Stallion Routes" srcset="">
+                Stallion Routes
+            </a>
+            <button class="navbar-toggler border-light d-block d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+    <div class="container-fluid p-0">
+        <div class="sidebar text-card collapse navbar-collapse d-md-block" id="navbarNav">
+            <h5>DashBoard</h5>
+            <p><div class="fs-4"><label id="greeting"></label></div></p>
+            <p><label id="c-mail" class="hidden">{{ customer_email }}</label></p>
+            <p><label id="c-id" class="hidden">{{ customer_id }}</label></p>
+            <p><i class="bi-person-fill"></i> Name: <label id="c-name">{{ customer_name }}</label></p>
+            <p><i class="bi-envelope-fill"></i> Email: <label id="mail">{{ customer_email }}</label></p>
+            <p><i class="bi-telephone-fill"></i> Phone: <label id="c-number">{{ customer_phone }}</label></p>
+            <p><i class="bi-calendar-day-fill"></i> Date: <label id="date">{{ current_date }}</label></label></p>
+            <p><i class="bi-clock-fill"></i> Time: <label id="time-display">{{ current_time }}</label></p>
+            <a href="/customer_settings" class="btn btn-light w-100 mb-3">Settings</a>
+            <a href="/logout" class="btn btn-outline-light w-100">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
+        <div class="container-fluid bg-white">
+            <div class="dashboard-container lh-lg">
+                <h6 class="text-start m-0">Customer - Request Delivery</h6>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="col-12">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                
+                <div id="request-buttons" class="text-center mt-5 pt-5">
+                    <strong><h2 class="">No Orders Yet.</h2></strong>
+                    <h6>Proceed with the buttons below to initiate a request.</h6>
+                    <div class="d-inline-flex gap-2 mt-3">
+                        <button type="button" id="waybill-button" class="btn btn-sm btn-stallion">Waybill Delivery</button>
+                        <button type="button" id="handoff-button" class="btn btn-sm btn-stallion">Hand-Off Delivery</button>
+                        <button type="button" id="food-button" class="btn btn-sm btn-stallion">Food Delivery</button>
+                    </div>
+                </div>
+                <form id="delivery-request-form" action="/request_delivery" method="POST" class="mt-3" style="display: none;">
+                    <input id="delivery_type" name="delivery_type" value="" hidden>
+                    <!-- waybill form -->
+                    <div id="waybill-form" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="waybillpackDesc" class="form-label">Package Description</label>
+                                <input type="text" class="form-control" id="waybillpackDesc" name="waybillpackDesc" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label for="waybilldeliveryaddress" class="form-label">Delivery Address</label>
+                                <input type="text" class="form-control" id="waybilldeliveryaddress" name="waybilldeliveryaddress" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="waybillpackworth" class="form-label">Package Worth</label>
+                                <input type="text" class="form-control" id="waybillpackworth" name="waybillpackworth" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label for="waybillpickupnumber" class="form-label">PickUp Number</label>
+                                <input type="text" class="form-control" id="waybillpickupnumber" name="waybillpickupnumber" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="waybillpickupaddress" class="form-label">Pickup Location</label>
+                                <input type="text" class="form-control" id="waybillpickupaddress" name="waybillpickupaddress" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label for="waybillbusno" class="form-label">Bus No</label>
+                                <input type="text" class="form-control" id="waybillbusno" name="waybillbusno" placeholder="Optional">
+                            </div>
+                        </div>
+                        <div class=" row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="waybilldeliverystate" class="form-label">State</label>
+                                <select name="waybilldeliverystate" id="waybilldeliverystate" class="form-select" required>
+                                    <option selected disabled>Select your State</option>
+                                    <option value="Abuja">Abuja</option>
+                                    <option value="Ebonyi">Ebonyi</option>
+                                    <option value="Enugu">Enugu</option>
+                                    <option value="Lagos">Lagos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- handoff form -->
+                    <div id="handoff-form" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="handoffrecipientname" class="form-label">Recipient Name</label>
+                                <input type="text" class="form-control" id="handoffrecipientname" name="handoffrecipientname" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label for="handoffrecipientnumber" class="form-label">Recipient Number</label>
+                                <input type="text" class="form-control" id="handoffrecipientnumber" name="handoffrecipientnumber" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="handoffpickupaddress" class="form-label">Pickup Address</label>
+                                <input type="text" class="form-control" id="handoffpickupaddress" name="handoffpickupaddress" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label for="handoffrecipientaddress" class="form-label">Recipient/Delivery Address</label>
+                                <input type="text" class="form-control" id="handoffrecipientaddress" name="handoffrecipientaddress" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="handoffpackageItem" class="form-label">Package Description</label>
+                                <input type="text" class="form-control" id="handoffpackageItem" name="handoffpackageItem" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label for="handoffpackworth" class="form-label">Package Worth</label>
+                                <input type="text" class="form-control" id="handoffpackworth" name="handoffpackworth" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="handoffdeliverystate" class="form-label">State</label>
+                                <select name="handoffdeliverystate" id="handoffdeliverystate" class="form-select" required>
+                                    <option selected disabled>Select your State</option>
+                                    <option value="Abuja">Abuja</option>
+                                    <option value="Ebonyi">Ebonyi</option>
+                                    <option value="Enugu">Enugu</option>
+                                    <option value="Lagos">Lagos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- food form -->
+                    <div id="food-form" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="restaurantname" class="form-label">Restaurant Name</label>
+                                <input type="text" class="form-control" id="restaurantname" name="restaurantname" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label for="restaurantaddress" class="form-label">Restaurant Address</label>
+                                <input type="text" class="form-control" id="restaurantaddress" name="restaurantaddress" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="restaurantrecptname" class="form-label">Recipient Name</label>
+                                <input type="text" class="form-control" id="restaurantrecptname" name="restaurantrecptname" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label for="restaurantrecptnumber" class="form-label">Recipient Number</label>
+                                <input type="text" class="form-control" id="restaurantrecptnumber" name="restaurantrecptnumber" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="foodItem" class="form-label">Food Item</label>
+                                <input type="text" class="form-control" id="foodItem" name="foodItem" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label for="fooddeliveryaddress" class="form-label">Recipient/Delivery Address</label>
+                                <input type="text" class="form-control" id="fooddeliveryaddress" name="fooddeliveryaddress" required>
+                            </div>
+                        </div>
+                        <div class=" row mb-3">
+                            <div class="col-md-6 col-12">
+                                <label for="foodworth" class="form-label">Food Worth</label>
+                                <input type="text" class="form-control" id="foodworth" name="foodworth" required>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label for="fooddeliverystate" class="form-label">State</label>
+                                <select name="fooddeliverystate" id="fooddeliverystate" class="form-select" required>
+                                    <option selected disabled>Select your State</option>
+                                    <option value="Abuja">Abuja</option>
+                                    <option value="Ebonyi">Ebonyi</option>
+                                    <option value="Enugu">Enugu</option>
+                                    <option value="Lagos">Lagos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="submit-request" type="submit" class="btn btn-sm btn-stallion">Submit Request</button>
+                    <a href="{{ url_for('dashboard') }}" type="button" class="btn btn-sm btn-secondary">Back</a>
+                </form>
+                
+                <!-- Customer Summary-->
+                <div id="summary" class="mt-3 hidden">
+                    <div class="summary-card text-card row m-0 p-3 border rounded">
+                        <div class="col-lg-2 col-md-2 col-sm-2 col-12 p-2 text-center">
+                            <img src="{{ url_for('static', filename='img/delivery_bike.png') }}" class="img-fluid" alt="Delivery Bike">
+                        </div>
+                        <div class="col-lg-10 col-md-10 col-sm-10 col-12 py-2 px-3">
+                            <h6 class="fw-bold">Request ID:  <span id="request-id"></span></h6>
+                            <div class="mb-1">
+                                <strong>Delivery Type:</strong> <span id="type" class="text-capitalize"></span>
+                            </div>
+                            <div class="mb-1 hidden" id="restaurant-summary">
+                                <strong>Restaurant Name:</strong> <span id="restaurantName-summary"></span>
+                            </div>
+                            <div class="mb-1 hidden" id="recipient-summary">
+                                <strong>Recipient Name:</strong> <span id="recipientName-summary"></span><br>
+                                <strong>Recipient Number:</strong> <span id="recipientNumber-summary"></span>
+                            </div>
+                            <div class="mb-1">
+                                <strong>Pickup:</strong> <span id="pickup-summary"></span>
+                            </div>
+                            <div class="mb-1">
+                                <strong>Delivery Address:</strong> <span id="delivery-summary"></span>
+                            </div>
+                            <div class="mb-1">
+                                <strong>Package:</strong> <span id="package-summary"></span>
+                            </div>
+                            <div class="mb-1">
+                                <strong>Worth:</strong> <span id="worth-summary"></span>
+                            </div>
+                            <div class="mb-1 hidden" id="pickupNumber-summary-container">
+                                <strong>Pickup Number:</strong> <span id="pickupNumber-summary"></span>
+                            </div>
+                            <div class="mb-1 hidden" id="busNumber-summary-container">
+                                <strong>Bus Number:</strong> <span id="busNumber-summary"></span>
+                            </div>
+                            <div class="mb-1">
+                                <strong>State:</strong> <span id="state-summary"></span>
+                            </div>
+                            <span class="bg-success">
+                                <h6 class="fw-bold h6 mt-2 text-end">Cost: ₦<span id="transport_fee">0</span></h6>
+                                <button id="payment" class="btn btn-sm btn-success mt-1 float-end">Proceed to payment</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Ticket Items -->
+                <form id="confirm_delivery" action="/dashboard" method="post">
+                    {% if pending_requests %}
+                    <div id="orders" class="mt-2 hidden">
+                        <div class="row">
+                            <div class="d-inline-flex gap-2">
+                                <button type="button" id="waybill-button-2" class="btn btn-sm btn-stallion">Waybill Delivery</button>
+                                <button type="button" id="handoff-button-2" class="btn btn-sm btn-stallion">Hand-Off Delivery</button>
+                                <button type="button" id="food-button-2" class="btn btn-sm btn-stallion">Food Delivery</button>
+                            </div>
+                            <span class="text-card mt-2">
+                                Once you've received your package click on confirm delivery. Click on track package to know the location of your package.
+                            </span>
+                            {% for request in pending_requests %}
+                            <div class="col-lg-6 col-md-12 col-sm-12 mb-3"> <!-- Adjust grid columns here -->
+                                <div class="card text-card text-capitalize">
+                                    <div class="card-header bg-dark">
+                                        <strong>Request ID: {{ request[0] }}</strong>
+                                    </div>
+                                    <div class="card-body p-bottom p-3">
+                                        <p><strong>Delivery Type:</strong> {{ request[1] }}</p>
+                                        {% if request[1] == 'handoff' %}
+                                        <p><strong>Recipient Name:</strong> {{ request[2] }}</p>
+                                        <p><strong>Recipient Phone:</strong> {{ request[3] }}</p>
+                                        {% endif %}
+                                        {% if request[1] == 'food' %}
+                                        <p><strong>Restaurant Name:</strong> {{ request[4] }}</p>
+                                        <p><strong>Recipient Name:</strong> {{ request[2] }}</p>
+                                        <p><strong>Recipient Phone:</strong> {{ request[3] }}</p>
+                                        {% endif %}
+                                        <p><strong>Pickup Address:</strong> {{ request[5] }}</p>
+                                        <p><strong>Delivery Address:</strong> {{ request[6] }}</p>
+                                        <p><strong>Package:</strong> {{ request[7] }}</p>
+                                        <p><strong>Date:</strong> {{ request[8] }}</p>
+                                        <p><strong>Time:</strong> {{ request[9] }}</p>
+                                        <p><strong>Status:</strong> {{ request[10] }}</p>
+                                        <p><strong>Rider's Name:</strong> {{ request[11] }}</p>
+                                        <p><strong>Rider's Number:</strong> {{ request[12] }}</p>
+                                    </div>
+                                    <input type="hidden" name="reqID" value="{{ request[0] }}">
+                                    <input type="hidden" name="riderName" value="{{ request[11] }}">
+                                    <div class="card-footer text-end">
+                                        <button type="button" name="action" value="confirm" class="btn btn-sm btn-stallion text-card" data-rider="{{ request[11] }}">Confirm Delivery</button>
+                                        <button type="button" name="action" value="track" class="btn btn-sm btn-stallion text-card track-btn" data-request-id="{{ request[0] }}" data-pickup="{{ request[5] }}" data-delivery="{{ request[6] }}">Track Package</button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </form>
+
+                <div class="mt-4">
+                    <div id="rider-location-map" class="text-start" style="display: none;">
+                        <p><strong>Rider's Location (Live Map):</strong></p>
+                        <div id="rider-map" class="border border-black border-2 rounded-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ratingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Rider Rating</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="ratingForm" method="post">
+                        <input type="hidden" name="reqID" id="ratingRequestId">
+                        <input type="hidden" name="riderName" id="ratingRiderName">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Rate your Rider</label>
+                            <div class="star-rating">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                            </div>
+                            <input type="hidden" id="ratingInput" name="rating" value="0">
+                        </div>
+                
+                        <div class="mb-3">
+                            <label for="feedback" class="form-label">Comment (Optional)</label>
+                            <textarea class="form-control" id="feedback" name="feedback" placeholder="Leave your comment" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="submitRatingBtn" class="btn btn-sm btn-stallion">Rate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back-to-Top Button -->
+    <a href="#" id="back-to-top" title="Back to top">↑</a>
+
+    <div class="py-5"></div>
+    
+    <footer class="fixed-bottom text-center text-white py-3 bg-dark">
+        <p class="m-0">&copy; 2024, All Rights Reserved. Designed by <a class="text-color" href="#">Stallion Routes</a></p>
+    </footer>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script> -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMpQ311SaX_8SaFEGORjCV6wVrC2T2Q8Y&libraries=places"></script>
+    <!-- JavaScript to Show/Hide Button on Scroll -->
+    <script>
+        window.onscroll = function() {
+            const backToTopButton = document.getElementById("back-to-top");
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        };
+    </script>
+
+    <script>
+        document.querySelectorAll('.track-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const pickup = btn.getAttribute('data-pickup');
+                const delivery = btn.getAttribute('data-delivery');
+                const requestId = btn.getAttribute('data-request-id');
+                document.getElementById('rider-location-map').style.display = 'block';
+                initMap(pickup, delivery, requestId);
+            });
+        });
+
+        function initMap(pickupAddress, deliveryAddress, requestId) {
+            const geocoder = new google.maps.Geocoder();
+
+            geocoder.geocode({ address: pickupAddress }, (pickupResults, status1) => {
+                if (status1 === 'OK') {
+                    geocoder.geocode({ address: deliveryAddress }, (deliveryResults, status2) => {
+                        if (status2 === 'OK') {
+                            const map = new google.maps.Map(document.getElementById('rider-map'), {
+                                zoom: 13,
+                                center: pickupResults[0].geometry.location
+                            });
+
+                            new google.maps.Marker({
+                                position: pickupResults[0].geometry.location,
+                                map: map,
+                                label: "P"
+                            });
+
+                            new google.maps.Marker({
+                                position: deliveryResults[0].geometry.location,
+                                map: map,
+                                label: "D"
+                            });
+
+                            const socket = io();
+
+                            // Join the request-specific room
+                            socket.emit('join_request_room', requestId);
+
+                            let riderMarker = null;
+                            let riderPath = [];
+                            const polyline = new google.maps.Polyline({
+                                path: riderPath,
+                                geodesic: true,
+                                strokeColor: '#FF0000',
+                                strokeOpacity: 1.0,
+                                strokeWeight: 3
+                            });
+                            polyline.setMap(map);
+
+                            socket.on('update_customer_map', function (data) {
+                                if (data.request_id !== requestId) return;
+
+                                const riderPosition = new google.maps.LatLng(data.lat, data.lng);
+                                riderPath.push(riderPosition);
+                                polyline.setPath(riderPath);
+
+                                if (!riderMarker) {
+                                    riderMarker = new google.maps.Marker({
+                                        position: riderPosition,
+                                        map: map,
+                                        icon: 'https://maps.google.com/mapfiles/kml/shapes/motorcycling.png',
+                                        title: 'Rider'
+                                    });
+                                } else {
+                                    riderMarker.setPosition(riderPosition);
+                                }
+
+                                map.setCenter(riderPosition);
+                            });
+                        } else {
+                            alert('Error locating delivery address');
+                        }
+                    });
+                } else {
+                    alert('Error locating pickup address');
+                }
+            });
+        }
+    </script>
+
+    <!-- <script>
+        let map;
+        let userMarker;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("rider-map"), {
+                center: { lat: 0, lng: 0 },
+                zoom: 15
+            });
+
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+
+                        if (!userMarker) {
+                            userMarker = new google.maps.Marker({
+                                position: pos,
+                                map: map,
+                                title: "Your Location",
+                                icon: {
+                                    url: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+                                }
+                            });
+                            map.setCenter(pos);
+                        } else {
+                            userMarker.setPosition(pos);
+                            map.setCenter(pos);
+                        }
+                    },
+                    () => {
+                        alert("Geolocation failed.");
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                alert("Geolocation not supported by this browser.");
+            }
+        }
+    </script> -->
+    <!-- <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMpQ311SaX_8SaFEGORjCV6wVrC2T2Q8Y&callback=initMap">
+    </script> -->
+    <script src="{{ url_for('static', filename='js/customer.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+</body>
+</html>
