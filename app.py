@@ -118,7 +118,7 @@ def login():
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
 
-        sqlInsert = "SELECT * FROM users WHERE email = %s AND role = 'customer'"
+        sqlInsert = "SELECT * FROM users WHERE email = %s"
         cursor.execute(sqlInsert, (email,))
         user = cursor.fetchone()
 
