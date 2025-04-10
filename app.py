@@ -705,7 +705,7 @@ def payment_callback():
                             (request_id, rider_id, customer_id, type, customer_name, customer_email, customer_number, package_desc, delivery_address, 
                             worth, pickup_number, pickup_address, bus_number, state, date_requested, time_requested)
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """, (metadata['request_id'], '0', metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
+                        """, (metadata['request_id'], 0, metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
                             metadata['package_description'], metadata['delivery_address'], metadata['package_worth'], metadata['pickup_number'], metadata['pickup_location'], 
                             metadata['bus_number'], metadata['state'], metadata['transaction_date'], metadata['transaction_time']))
                         cursor.execute("""
@@ -719,7 +719,7 @@ def payment_callback():
                             (request_id, rider_id, customer_id, type, customer_name, customer_email, customer_number, recipient_name, recipient_number, 
                             package_desc, delivery_address, worth, pickup_address, state, date_requested, time_requested)
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """, (metadata['request_id'], '0', metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
+                        """, (metadata['request_id'], 0, metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
                             metadata['recipient_name'], metadata['recipient_number'], metadata['package_description'], metadata['delivery_address'], metadata['package_worth'], 
                             metadata['pickup_location'], metadata['state'], metadata['transaction_date'], metadata['transaction_time']))
                         cursor.execute("""
@@ -733,7 +733,7 @@ def payment_callback():
                             (request_id, rider_id, customer_id, type, customer_name, customer_email, customer_number, recipient_name, recipient_number, 
                             restaurant_name, package_desc, delivery_address, worth, pickup_address, state, date_requested, time_requested)
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """, (metadata['request_id'], '0', metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
+                        """, (metadata['request_id'], 0, metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
                             metadata['recipient_name'], metadata['recipient_number'], metadata['restaurant_name'], metadata['package_description'], metadata['delivery_address'], 
                             metadata['package_worth'], metadata['pickup_location'], metadata['state'], metadata['transaction_date'], metadata['transaction_time']))
                         cursor.execute("""
