@@ -93,8 +93,9 @@
             <div class="container text-white">
                 <h1 class="display-4 hero-title">Driven by Precision, Defined by Trust</h1>
                 <p class="lead hero-subtitle">Your reliable delivery service.</p>
-                <div>
+                <div class="d-flex justify-content-center">
                     <a href="#rider" class="btn btn-dark m-1">Become a Rider</a>
+                    <a href="{{ url_for('signup') }}" class="btn btn-outline-warning">Get Started</a>
                 </div>
                 <div class="download-buttons mt-3">
                     <a href="#" class="btn btn-success text-white download-btn">
@@ -111,7 +112,6 @@
                     </a>
                     <p class="coming-soon mt-2">Coming Soon...</p>
                 </div>
-                <div class="mb-2"><a href="{{ url_for('signup') }}" class="btn btn-outline-warning">Get Started</a></div>
             </div>
         </div>
     </div>
