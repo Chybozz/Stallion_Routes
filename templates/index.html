@@ -418,7 +418,7 @@
                         <li>Submit the form</li>
                         <li>Wait for our team to contact you</li>
                     </ol>
-                    <a href="#" class="btn btn-stallion">Become a Rider</a>
+                    <a href="#" class="btn btn-stallion" data-bs-toggle="modal" data-bs-target="#exampleModal">Become a Rider</a>
                 </div>
             </div>
         </div>
@@ -457,6 +457,32 @@
             </div>
         </div>
     </section>
+
+    <!-- Modal Section for become a rider button -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="exampleModalLabel">Want to become a rider?</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/sendmail" method="POST">
+                        <div class="mb-2">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+                        </div>
+                        <div class="mb-2">
+                            <label for="email" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+                        <div class="mb-2">A message will be sent to your mail to proceed with your application.</div>
+                        <button type="submit" class="btn btn-stallion">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Back-to-Top Button -->
     <a href="#" id="back-to-top" title="Back to top">↑</a>

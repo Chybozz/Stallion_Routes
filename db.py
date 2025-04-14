@@ -13,11 +13,22 @@ def get_db_connection():
                 database=os.environ.get('DB_NAME'),  # Replace with your database name
                 unix_socket=f"/cloudsql/{os.environ.get('DB_CONNECTION_NAME')}" # Replace with your Cloud SQL connection name
             )
+        else:
+            # Running locally or in a different environment
+            return mysql.connector.connect(
+                host='localhost',  # Replace with your local MySQL host
+                user='root',  # Replace with your local MySQL username
+                password='Onuchukwu12!',  # Replace with your local MySQL password
+                database='stallionroutes'  # Replace with your local database name
+            )
     except Error as err:
         print(f"Error: {err}")
         return None
 
-# host='localhost',
-# user='root',
-# password='Onuchukwu12!',
-# database='stallionroutes'
+""" return mysql.connector.connect(
+    # Replace with your Cloud SQL instance connection details
+        host='localhost',
+        user='root',
+        password='Onuchukwu12!',
+        database='stallionroutes'
+    ) """

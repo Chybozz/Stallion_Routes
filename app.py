@@ -9,6 +9,7 @@ from mysql.connector import Error  # Add this import
 from datetime import datetime
 from dotenv import load_dotenv
 from collections import defaultdict
+from decimal import Decimal
 import smtplib
 import requests
 import random
@@ -30,9 +31,10 @@ CORS(app)  # Enable CORS
 EMAIL_USER = os.getenv('EMAIL_USER')
 EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 
-PAYSTACK_SECRET_KEY = 'sk_test_4b450054ba0f838ba79c87463a462042c2a9736e' #e.g
-"sk_live_4bb1aadf6285b8b9e2150f2836fbf930062576f3" # live key
-""" request_id = secrets.token_hex(4)
+PAYSTACK_SECRET_KEY = 'sk_live_4bb1aadf6285b8b9e2150f2836fbf930062576f3' #e.g
+"""sk_live_4bb1aadf6285b8b9e2150f2836fbf930062576f3 # live key
+sk_test_4b450054ba0f838ba79c87463a462042c2a9736e # test key
+ request_id = secrets.token_hex(4)
 print(f"Request ID: {request_id}") """
 
 # Folder to store uploaded images
@@ -68,9 +70,45 @@ def index():
 def company():
     return render_template('company.html')
 
-@app.route('/admins')
+""" @app.route('/admins')
 def admins():
-    return render_template('admin.html')
+    return render_template('admin.html') """
+
+@app.route('/sendmail', methods=['POST'])
+def send_mail_to_rider():
+    if request.method == 'POST':
+        rider_email = request.form.get('email')
+        rider_name = request.form.get('name')
+
+        if not rider_email or not rider_name:
+            # If email or name is not provided, flash an error message and redirect
+            flash('Rider email and name are required!', 'danger')
+            return redirect(url_for('index'))
+
+        try:
+            # Generate a registration link
+            registration_link = f"{request.url_root}/rider_registration"
+
+            # Prepare the email content
+            body = f"Hi {rider_name},\n\nYou have been invited to register as a rider for Stallion Routes. Please complete your registration by clicking the link below:\n{registration_link}\n\nThank you!"
+            
+            # Prepare the email
+            msg = EmailMessage()
+            msg['Subject'] = 'Rider Registration - Stallion Routes'
+            msg['From'] = EMAIL_USER
+            msg['To'] = rider_email
+            msg.set_content(body)
+
+            # Send the email
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                smtp.login(EMAIL_USER, EMAIL_PASSWORD)
+                smtp.send_message(msg)
+
+            flash('Email sent successfully!', 'success')
+        except Exception as e:
+            flash(f"Failed to send email: {str(e)}", 'danger')
+
+    return render_template('index.html')
 
 @app.route('/logout')
 def logout():
@@ -78,37 +116,8 @@ def logout():
     flash('You have been logged out.', 'success')
     return redirect(url_for('login'))
 
-@app.route('/rider_login', methods=['GET', 'POST'])
-def rider_login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
 
-        connection = get_db_connection()
-        cursor = connection.cursor(dictionary=True)
-
-        sqlInsert = "SELECT * FROM riders WHERE rider_email = %s"
-        cursor.execute(sqlInsert, (email,))
-        rider = cursor.fetchone()
-
-        cursor.close()
-        connection.close()
-
-        if rider and check_password_hash(rider['password'], password): # Verify rider password
-            if not rider['is_verified']:
-                flash('Your email is not verified. Please check your email.', 'warning')
-                return redirect(url_for('login'))
-            session['rider_id'] = rider['rider_id']
-            session['rider_full_name'] = rider['rider_name']
-            session['rider_email'] = rider['rider_email']
-            session['rider_phone'] = rider['rider_number']
-            flash('Welcome back!', 'success')
-            return redirect(url_for('rider_dashboard'))  # Create a dashboard route
-        else:
-            flash('Invalid email or password', 'danger')
-            return redirect(url_for('rider_login'))
-    return render_template('rider_login.html')
-
+####################### CUSTOMER LOGIN DETAILS ########################
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -138,46 +147,6 @@ def login():
             flash('Invalid email or password', 'danger')
             return redirect(url_for('login'))
     return render_template('login.html')
-
-@app.route('/rider_signup', methods=['GET', 'POST'])
-def rider_signup():
-    if request.method == 'POST':
-        rider_email = request.form['email']
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
-
-        if password != confirm_password:
-            flash('Passwords do not match', 'danger')
-            return redirect(url_for('rider_signup'))
-        
-        # Hash the password
-        password_hash = generate_password_hash(password)
-
-        connection = get_db_connection()
-        cursor = connection.cursor()
-
-        try:
-            # Check if the email already exists
-            cursor.execute("SELECT * FROM riders WHERE rider_email = %s", (rider_email,))
-            existing_rider = cursor.fetchone()
-
-            if existing_rider: 
-                if existing_rider[5] == "":  # Assuming the password is in the 6th column (index 3)
-                    flash('Email is already registered. Please log in or use a different email.', 'danger')
-                    return redirect(url_for('rider_signup'))
-
-            # Update riders with verified status
-            cursor.execute("UPDATE riders SET password = %s WHERE rider_email = %s", (password_hash, rider_email))
-            connection.commit()
-
-            flash('Signup successful! Account Verified.', 'info')
-            return redirect(url_for('rider_login'))
-        except Error as err:
-            flash(f"Error: {err}", 'danger')
-        finally:
-            cursor.close()
-            connection.close()
-    return render_template('rider_signup.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -305,55 +274,6 @@ def resend_verification():
             connection.close()
     return redirect(url_for('customer_settings'))
 
-@app.route('/rider_forgot_password', methods=['GET', 'POST'])
-def rider_forgot_password():
-    if request.method == 'POST':
-        rider_email = request.form['email']
-        session['stallionriders'] = "stallionriders"
-
-        connection = get_db_connection()
-        cursor = connection.cursor()
-
-        try:
-            cursor.execute("SELECT * FROM riders WHERE rider_email = %s", (rider_email,))
-            rider = cursor.fetchone()
-
-            if rider:
-                # Generate a password reset token
-                reset_token = str(uuid.uuid4())
-
-                # Store the token in the database
-                cursor.execute("""
-                    INSERT INTO password_reset (email, reset_token, expires_at)
-                    VALUES (%s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
-                """, (rider_email, reset_token))
-                connection.commit()
-
-                # ON DUPLICATE KEY UPDATE reset_token = %s, expires_at = DATE_ADD(NOW(), INTERVAL 1 HOUR)
-
-                # Send password reset email
-                reset_url = f"{request.url_root}/reset_password/{reset_token}"
-                
-                msg = EmailMessage()
-                msg['Subject'] = 'Password Reset Request - Stallion Routes'
-                msg['From'] = EMAIL_USER
-                msg['To'] = rider_email
-                msg.set_content(f"Hi,\n\nTo reset your password, please click the link below:\n{reset_url}\nThis link will expire in 1 hour.\n\nThank you!")
-
-                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-                    smtp.login(EMAIL_USER, EMAIL_PASSWORD)
-                    smtp.send_message(msg)
-
-                flash('Password reset link sent to your email.', 'info')
-            else:
-                flash('Email not found.', 'danger')
-        except Error as err:
-            flash(f"Error: {err}", 'danger')
-        finally:
-            cursor.close()
-            connection.close()
-    return render_template('forgot_password.html')
-
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
@@ -400,6 +320,8 @@ def forgot_password():
             connection.close()
     return render_template('forgot_password.html')
 
+
+################# BOTH RIDERS AND CUSTOMERS #############################
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     if request.method == 'POST':
@@ -455,6 +377,316 @@ def reset_password(token):
             connection.close()
     return render_template('reset_password.html', token=token)
 
+
+########################### RIDERS LOGIN DETAILS #############################
+@app.route('/rider_login', methods=['GET', 'POST'])
+def rider_login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        sqlInsert = "SELECT * FROM riders WHERE rider_email = %s"
+        cursor.execute(sqlInsert, (email,))
+        rider = cursor.fetchone()
+
+        cursor.close()
+        connection.close()
+
+        if rider and check_password_hash(rider['password'], password): # Verify rider password
+            if not rider['is_verified']:
+                flash('Your email is not verified. Please check your email.', 'warning')
+                return redirect(url_for('login'))
+            session['rider_id'] = rider['rider_id']
+            session['rider_full_name'] = rider['rider_name']
+            session['rider_email'] = rider['rider_email']
+            session['rider_phone'] = rider['rider_number']
+            flash('Welcome back!', 'success')
+            return redirect(url_for('rider_dashboard'))  # Create a dashboard route
+        else:
+            flash('Invalid email or password', 'danger')
+            return redirect(url_for('rider_login'))
+    return render_template('rider_login.html')
+
+@app.route('/rider_signup', methods=['GET', 'POST'])
+def rider_signup():
+    if request.method == 'POST':
+        rider_email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+
+        if password != confirm_password:
+            flash('Passwords do not match', 'danger')
+            return redirect(url_for('rider_signup'))
+        
+        # Hash the password
+        password_hash = generate_password_hash(password)
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        try:
+            # Check if the email already exists
+            cursor.execute("SELECT * FROM riders WHERE rider_email = %s", (rider_email,))
+            existing_rider = cursor.fetchone()
+
+            if existing_rider: 
+                if existing_rider[5] == "":  # Assuming the password is in the 6th column (index 3)
+                    flash('Email is already registered. Please log in or use a different email.', 'danger')
+                    return redirect(url_for('rider_signup'))
+
+            # Update riders with verified status
+            cursor.execute("UPDATE riders SET password = %s WHERE rider_email = %s", (password_hash, rider_email))
+            connection.commit()
+
+            flash('Signup successful! Account Verified.', 'info')
+            return redirect(url_for('rider_login'))
+        except Error as err:
+            flash(f"Error: {err}", 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+    return render_template('rider_signup.html')
+
+@app.route('/rider_registration', methods=['GET', 'POST'])
+def rider_registration():
+    if request.method == 'POST':
+        # uploaded_filename = None  # Default is None
+
+        # Check if file is present in request
+        if 'profile_pictures' not in request.files:
+            return render_template('rider_registration.html', error="No file part")
+
+        file = request.files['profile_pictures']
+        
+        if file.filename == '':
+            return render_template('rider_registration.html', error="No selected file")
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)  # Save file to folder
+
+            # uploaded_filename = filename
+
+        # Retrieve form data
+        rider_name = request.form['rider_name']
+        rider_email = request.form['rider_email']
+        # 'rider_photo': request.form['profile_pictures'],
+        rider_number = request.form['rider_number']
+        rider_age = request.form['rider_age']
+        residential_address = request.form['residential_address']
+        rider_city = request.form['rider_city']
+        rider_state = request.form['rider_state']
+        nin = request.form['nin']
+        acct_num = request.form['acct_num']
+        bank_name = request.form['bank_name']
+        guarantor_name = request.form['guarantor_name']
+        guarantor_number = request.form['guarantor_number']
+        guarantor_residential_address = request.form['guarantor_residential_address']
+        guarantor_relationship = request.form['guarantor_relationship']
+        guarantor_occupation = request.form['guarantor_occupation']
+        guarantor_state = request.form['guarantor_state']
+        
+        # Connect to database and check for duplicates
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        
+        try:
+            # Check if the email, rider phone, or guarantor phone already exists
+            cursor.execute("SELECT * FROM riders WHERE rider_email = %s OR rider_number = %s OR guarantor_number = %s OR account_number = %s", 
+                           (rider_email, rider_number, guarantor_number, acct_num))
+            rider = cursor.fetchone()
+
+            if rider:
+                if rider['rider_email'] == rider_email:
+                    flash("Email already registered!", "danger")
+                elif rider['rider_number'] == rider_number:
+                    flash("Rider Phone Number already registered!", "danger")
+                elif rider['guarantor_number'] == guarantor_number:
+                    flash("Guarantor Phone Number already registered!", "danger")
+                
+                # Return to the form with pre-filled data
+                return render_template('rider_registration.html')
+            
+            # Generate a verification token
+            verification_token = str(uuid.uuid4())  # Generate a unique token
+
+            # Insert the new rider into the database
+            cursor.execute("""
+                INSERT INTO riders (rider_name, rider_email, rider_photo, rider_number, rider_age, rider_address, city,
+                    state, rider_nin, account_number, bank_name, guarantor_name, guarantor_number, guarantor_address, 
+                    guarantor_relationship, guarantor_occupation, guarantor_state, verification_token, is_verified, expires_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
+            """, (rider_name, rider_email, filename, rider_number, rider_age, 
+                  residential_address, rider_city, rider_state, nin, acct_num, 
+                  bank_name, guarantor_name, guarantor_number, guarantor_residential_address, 
+                  guarantor_relationship, guarantor_occupation, guarantor_state, 
+                  verification_token, False))  # Set is_verified to False initially
+            rd_id = cursor.lastrowid  # Get the auto-incremented ID
+            
+            # Step 2: Generate user_id in the format CU-xxx
+            # rider_id = f"RD-{rd_id:03}"
+            rider_id = f"{rd_id}"
+
+            # Step 3: Update the customer record with the generated user_id
+            cursor.execute("UPDATE riders SET rider_id = %s WHERE id = %s", (rider_id, rd_id))
+            
+            """ cursor.execute(""
+                INSERT INTO riders (rider_id, rider_name, rider_email, rider_number, password_hash)
+                VALUES (%s, %s, %s, %s, %s)
+            "", (rider_id, form_data['rider_name'], form_data['rider_email'], form_data['rider_number'], "None")) """
+
+            # Commit the transaction
+            connection.commit()
+
+            # create verification link
+            verification_link = f"{request.url_root}/verify_rider/{verification_token}"
+            body = f"Hi {rider_name},\n\nPlease complete your registration and verify your email address by clicking the link below:\n{verification_link}\nThis link will expire in 1 hour.\n\nThank you for accepting to be our rider, Stallion Routes!"
+
+            # Prepare the mail
+            msg = EmailMessage()
+            msg['Subject'] = 'Verify Your Email - Stallion Routes'
+            msg['From'] = EMAIL_USER
+            msg['To'] = rider_email
+            msg.set_content(body)
+
+            # Send the email
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                smtp.login(EMAIL_USER, EMAIL_PASSWORD)
+                smtp.send_message(msg)
+
+            # Emit a notification for new rider registration
+            socketio.emit('new_rider', {'message': 'A new rider has been registered!'})
+            flash("Registration successful! \nProceed to your mail to complete registration", "success")
+            
+            # Redirect to clear form fields
+            return redirect(url_for('rider_registration'))
+        
+        finally:
+            # Ensure the database connection is closed
+            cursor.close()
+            connection.close()
+
+    return render_template('rider_registration.html')
+
+@app.route('/verify_rider/<token>')
+def verify_rider_email(token):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute("SELECT rider_id FROM riders WHERE verification_token = %s AND is_verified = %s AND expires_at > NOW()", (token, False))
+        rider = cursor.fetchone()
+
+        if rider:
+            # Mark the user as verified
+            cursor.execute("UPDATE riders SET is_verified = %s WHERE id = %s", (True, rider[0]))
+            connection.commit()
+            flash('Email verified successfully! You can now log in.', 'success')
+            return redirect(url_for('rider_signup'))
+        else:
+            flash('Invalid or expired verification link.', 'danger')
+            return redirect(url_for('rider_signup'))
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/resend_rider_verification', methods=['POST'])
+def resend_rider_verification():
+    if request.method == 'POST':
+        email = session['rider_email']  # Get the email from the session
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        try:
+            cursor.execute("SELECT * FROM riders WHERE rider_email = %s", (email,))
+            rider = cursor.fetchone()
+
+            if rider and not rider['is_verified']:  # Check if the user is not verified
+                verification_token = str(uuid.uuid4())
+                cursor.execute("UPDATE riders SET verification_token = %s, expires_at = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE rider_email = %s", (verification_token, email))
+                connection.commit()
+
+                # Create the verification link
+                verification_url = f"{request.url_root}/verify_rider/{verification_token}"
+                body = f"Hi,\n\nPlease verify your email address by clicking the link below:\n{verification_url}\nThis link will expire in 1 hour.\n\nThank you!"
+                
+                # Prepare the email
+                msg = EmailMessage()
+                msg['Subject'] = 'Resend Verification - Stallion Routes'
+                msg['From'] = EMAIL_USER
+                msg['To'] = email
+                msg.set_content(body)
+
+                # Send the email
+                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                    smtp.login(EMAIL_USER, EMAIL_PASSWORD)
+                    smtp.send_message(msg)
+
+                flash('Verification link resent! Please check your email.', 'info')
+            else:
+                flash('Email not found or already verified.', 'danger')
+        except Error as err:
+            flash(f"Error: {err}", 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+    return redirect(url_for('rider_settings'))
+
+@app.route('/rider_forgot_password', methods=['GET', 'POST'])
+def rider_forgot_password():
+    if request.method == 'POST':
+        rider_email = request.form['email']
+        session['stallionriders'] = "stallionriders"
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        try:
+            cursor.execute("SELECT * FROM riders WHERE rider_email = %s", (rider_email,))
+            rider = cursor.fetchone()
+
+            if rider:
+                # Generate a password reset token
+                reset_token = str(uuid.uuid4())
+
+                # Store the token in the database
+                cursor.execute("""
+                    INSERT INTO password_reset (email, reset_token, expires_at)
+                    VALUES (%s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
+                """, (rider_email, reset_token))
+                connection.commit()
+
+                # ON DUPLICATE KEY UPDATE reset_token = %s, expires_at = DATE_ADD(NOW(), INTERVAL 1 HOUR)
+
+                # Send password reset email
+                reset_url = f"{request.url_root}/reset_password/{reset_token}"
+                
+                msg = EmailMessage()
+                msg['Subject'] = 'Password Reset Request - Stallion Routes'
+                msg['From'] = EMAIL_USER
+                msg['To'] = rider_email
+                msg.set_content(f"Hi,\n\nTo reset your password, please click the link below:\n{reset_url}\nThis link will expire in 1 hour.\n\nThank you!")
+
+                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                    smtp.login(EMAIL_USER, EMAIL_PASSWORD)
+                    smtp.send_message(msg)
+
+                flash('Password reset link sent to your email.', 'info')
+            else:
+                flash('Email not found.', 'danger')
+        except Error as err:
+            flash(f"Error: {err}", 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+    return render_template('forgot_password.html')
+
+
+#################### CUSTOMER REQUESTS BEGINS HERE #####################
 @app.route('/request_delivery', methods=['POST'])
 def request_delivery():
     if request.method == 'POST':
@@ -627,6 +859,7 @@ def request_payment():
             'metadata': {
                 'delivery_type': delivery_type,
                 'request_id': request_id,
+                'rider_id': 0,  # Assuming rider_id is not available at this point
                 'customer_name': customer_name,
                 'customer_id': customer_id,
                 'customer_mail': customer_mail,
@@ -705,7 +938,7 @@ def payment_callback():
                             (request_id, rider_id, customer_id, type, customer_name, customer_email, customer_number, package_desc, delivery_address, 
                             worth, pickup_number, pickup_address, bus_number, state, date_requested, time_requested)
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """, (metadata['request_id'], 0, metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
+                        """, (metadata['request_id'], metadata['rider_id'], metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
                             metadata['package_description'], metadata['delivery_address'], metadata['package_worth'], metadata['pickup_number'], metadata['pickup_location'], 
                             metadata['bus_number'], metadata['state'], metadata['transaction_date'], metadata['transaction_time']))
                         cursor.execute("""
@@ -719,7 +952,7 @@ def payment_callback():
                             (request_id, rider_id, customer_id, type, customer_name, customer_email, customer_number, recipient_name, recipient_number, 
                             package_desc, delivery_address, worth, pickup_address, state, date_requested, time_requested)
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """, (metadata['request_id'], 0, metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
+                        """, (metadata['request_id'], metadata['rider_id'], metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
                             metadata['recipient_name'], metadata['recipient_number'], metadata['package_description'], metadata['delivery_address'], metadata['package_worth'], 
                             metadata['pickup_location'], metadata['state'], metadata['transaction_date'], metadata['transaction_time']))
                         cursor.execute("""
@@ -733,7 +966,7 @@ def payment_callback():
                             (request_id, rider_id, customer_id, type, customer_name, customer_email, customer_number, recipient_name, recipient_number, 
                             restaurant_name, package_desc, delivery_address, worth, pickup_address, state, date_requested, time_requested)
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """, (metadata['request_id'], 0, metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
+                        """, (metadata['request_id'], metadata['rider_id'], metadata['customer_id'], metadata['delivery_type'], metadata['customer_name'], metadata['customer_mail'], metadata['customer_number'], 
                             metadata['recipient_name'], metadata['recipient_number'], metadata['restaurant_name'], metadata['package_description'], metadata['delivery_address'], 
                             metadata['package_worth'], metadata['pickup_location'], metadata['state'], metadata['transaction_date'], metadata['transaction_time']))
                         cursor.execute("""
@@ -826,8 +1059,7 @@ def dashboard():
         pending_requests = cursor.fetchall()
     connection.close()
     return render_template('dashboard.html', customer_id=customer_id, customer_name=customer_name, customer_email=customer_email, 
-                        customer_phone=customer_phone, current_date=current_date, current_time=current_time, 
-                        pending_requests=pending_requests)
+        customer_phone=customer_phone, current_date=current_date, current_time=current_time, pending_requests=pending_requests)
 
 @app.route('/submit-rating', methods=["POST"])
 def submit_rating():
@@ -923,6 +1155,8 @@ def customer_settings():
     return render_template('customer_settings.html', customer_id=customer_id, customer_name=customer_name, customer_email=customer_email, 
                            customer_phone=customer_phone, current_date=current_date, current_time=current_time, account_verified=account_verified)
 
+
+######################### RIDERS START HERE ############################
 @app.route('/rider_dashboard', methods=['GET', 'POST'])
 def rider_dashboard():
     if 'rider_id' not in session:
@@ -956,10 +1190,11 @@ def rider_dashboard():
 
                         cursor.execute("""
                             UPDATE transactions SET status = 'accepted', rider_id = %s, rider_name = %s, rider_number = %s, 
-                                        transaction_date = %s, transaction_time = %s
+                                        transaction_date = %s, time_accepted = %s
                             WHERE request_id = %s
                         """, (riderId, riderName, riderPhone, tranDate, tranTime, reqID))
                         connection.commit()
+                        
                         return jsonify({'success': True, 'message': 'Request accepted successfully!'})
                     elif action == 'track':
                         # Handle track package request
@@ -1023,11 +1258,30 @@ def rider_dashboard():
             WHERE dr.status = 'delivered' AND tr.rider_id = %s
         """, (rider_id,))
         completed_deliveries = cursor.fetchall()
+
+        # select the rider's wallet balance from the transactions table
+        cursor.execute("""
+            SELECT COALESCE(wallet_balance, 0.00) FROM riders WHERE rider_id = %s
+        """, (rider_id,))
+        wallet_balance = cursor.fetchone()
+
+        wallet_balance = wallet_balance[0] if wallet_balance else '0.00'
+        wallet_balance = "{:,.2f}".format(wallet_balance)  # Format the wallet balance to 2 decimal places
+
+        # Get recent salary history (optional: limit to last 5)
+        cursor.execute("""
+            SELECT amount_paid, paid_at, reference 
+            FROM rider_salary_history 
+            WHERE rider_id = %s 
+            ORDER BY paid_at DESC 
+            LIMIT 5
+        """, (rider_id,))
+        salary_history = cursor.fetchall()
     connection.close()
 
     return render_template('rider_dashboard.html', rider_id=rider_id, rider_name=rider_name, rider_email=rider_email, rider_phone=rider_phone, 
-                           current_date=current_date, current_time=current_time, delivery_requests=delivery_requests, 
-                           accepted_requests=accepted_requests, completed_deliveries=completed_deliveries)
+            current_date=current_date, current_time=current_time, delivery_requests=delivery_requests, 
+            accepted_requests=accepted_requests, completed_deliveries=completed_deliveries, wallet_balance=wallet_balance, salary_history=salary_history)
 
 @app.route('/deliver', methods=['POST'])
 def deliver():
@@ -1035,6 +1289,8 @@ def deliver():
         data = request.get_json()
         request_id = data.get('reqID')
         action = data.get('action')
+        rider_id = data.get('rider_id')
+        transaction_time = data.get('transaction_time')
 
         if not request_id or not action:
             return jsonify({'success': False, 'message': 'No request ID or action provided'})
@@ -1043,14 +1299,31 @@ def deliver():
             connection = get_db_connection()
             cursor = connection.cursor()
 
-            if action == 'deliver': 
+            if action == 'deliver':
                 cursor.execute("""
-                    UPDATE transactions SET status = %s WHERE request_id = %s
-                """, ("awaiting confirmation", request_id))
+                    UPDATE transactions SET status = %s, time_delivered = %s WHERE request_id = %s AND rider_id = %s
+                """, ("awaiting confirmation", transaction_time, request_id, rider_id))
+                connection.commit()
+
+                # select the rider's vehicle from the riders table
+                cursor.execute("""
+                    SELECT vehicle FROM riders WHERE rider_id = %s
+                """, (rider_id,))
+                vehicle = cursor.fetchone()
+                vehicle = vehicle[0] if vehicle else None  # extract the string value
+
+                if vehicle == 'bike':
+                    delivery_amount = 2700.00
+                elif vehicle == 'keke':
+                    delivery_amount = 3700.00
+                else:
+                    delivery_amount = 0.00  # fallback in case something went wrong
+
+                # Update wallet balance
+                cursor.execute("UPDATE riders SET wallet_balance = wallet_balance + %s WHERE rider_id = %s", (delivery_amount, rider_id))
                 connection.commit()
 
                 return jsonify({'success': True, 'message': 'Delivered successfully!'})
-
             elif action == 'track':
                 return jsonify({'success': True, 'message': f'Package tracking feature for {request_id} is not implemented yet.'})
 
@@ -1191,14 +1464,15 @@ def update_profile_picture():
     return render_template('rider_settings.html',rider_id=rider_id, rider_name=rider_name, rider_email=rider_email, 
             rider_phone=rider_phone, filename=uploaded_filename, current_date=current_date, current_time=current_time)
 
-@app.route('/admin')
+########################## ADMIN STARTS HERE ############################
+@app.route('/admin', methods=['GET', 'POST'])
 def admin():
     connection = get_db_connection()
     with connection.cursor() as cursor:
-        sql = "SELECT * FROM users WHERE role='customer'"
+        sql = "SELECT * FROM users"
         cursor.execute(sql)
         customers = cursor.fetchall()
-        sql = "SELECT * FROM users WHERE role='rider'"
+        sql = "SELECT * FROM riders"
         cursor.execute(sql)
         riders = cursor.fetchall()
 
@@ -1227,7 +1501,7 @@ def admin():
         # Select transaction details
         cursor.execute("""
             SELECT dr.request_id, dr.customer_id, dr.customer_name, dr.customer_number, dr.rider_id, dt.rider_name, 
-                dt.rider_number, dr.type, dt.amount, dt.transaction_date, dt.transaction_time, dt.status
+                dt.rider_number, dr.type, dt.amount, dt.transaction_date, dt.time_delivered, dt.status
             FROM delivery_requests dr
             LEFT JOIN transactions dt ON dr.request_id = dt.request_id
             WHERE dt.status = 'accepted' OR dt.status = 'awaiting confirmation' OR dt.status = 'completed'
@@ -1236,7 +1510,7 @@ def admin():
     connection.close()
 
     return render_template('admin.html', customers=customers, riders=riders, new_deliveries=new_deliveries, 
-                           delivered_requests=delivered_requests, tran_details=tran_details)
+        delivered_requests=delivered_requests, tran_details=tran_details)
 
 @app.route('/admin_rider', methods=['GET', 'POST'])
 def admin_rider():
@@ -1263,174 +1537,31 @@ def admin_rider():
 
     cursor.close()
     connection.close()
-    
-    if request.method == 'POST':
-        # Retrieve form data
-        form_data = {
-            'rider_name': request.form['rider_name'],
-            'rider_email': request.form['rider_email'],
-            'rider_number': request.form['rider_number'],
-            'rider_age': request.form['rider_age'],
-            'residential_address': request.form['residential_address'],
-            'rider_city': request.form['rider_city'],
-            'rider_state': request.form['rider_state'],
-            'acct_num': request.form['acct_num'],
-            'bank_name': request.form['bank_name'],
-            'guarantor_name': request.form['guarantor_name'],
-            'guarantor_number': request.form['guarantor_number'],
-            'guarantor_residential_address': request.form['guarantor_residential_address'],
-            'guarantor_relationship': request.form['guarantor_relationship'],
-            'guarantor_occupation': request.form['guarantor_occupation'],
-            'guarantor_state': request.form['guarantor_state']
-        }
-        
-        # Connect to database and check for duplicates
-        connection = get_db_connection()
-        cursor = connection.cursor(dictionary=True)
-        
-        try:
-            # Check if the email, rider phone, or guarantor phone already exists
-            cursor.execute("SELECT * FROM riders WHERE rider_email = %s OR rider_number = %s OR guarantor_number = %s OR account_number = %s", 
-                           (form_data['rider_email'], form_data['rider_number'], form_data['guarantor_number'], form_data['acct_num']))
-            rider = cursor.fetchone()
 
-            if rider:
-                if rider['rider_email'] == form_data['rider_email']:
-                    flash("Email already registered!", "danger")
-                elif rider['rider_number'] == form_data['rider_number']:
-                    flash("Rider Phone Number already registered!", "danger")
-                elif rider['guarantor_number'] == form_data['guarantor_number']:
-                    flash("Guarantor Phone Number already registered!", "danger")
-                
-                # Return to the form with pre-filled data
-                return render_template('admin_rider.html', form_data=form_data, table_data=table_data, rider_data=rider_data, current_date=current_date, current_time=current_time)
-            
-            # Generate a verification token
-            verification_token = str(uuid.uuid4())  # Generate a unique token
-
-            # Insert the new rider into the database
-            cursor.execute("""
-                INSERT INTO riders (rider_name, rider_email, rider_number, rider_age, rider_address, city,
-                    state, account_number, bank_name, guarantor_name, guarantor_number, guarantor_address, 
-                    guarantor_relationship, guarantor_occupation, guarantor_state, verification_token, is_verified, expires_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
-            """, (form_data['rider_name'], form_data['rider_email'], form_data['rider_number'], form_data['rider_age'], 
-                  form_data['residential_address'], form_data['rider_city'], form_data['rider_state'], form_data['acct_num'], 
-                  form_data['bank_name'], form_data['guarantor_name'], form_data['guarantor_number'], form_data['guarantor_residential_address'], 
-                  form_data['guarantor_relationship'], form_data['guarantor_occupation'], form_data['guarantor_state'], 
-                  verification_token, False))  # Set is_verified to False initially
-            rd_id = cursor.lastrowid  # Get the auto-incremented ID
-            
-            # Step 2: Generate user_id in the format CU-xxx
-            # rider_id = f"RD-{rd_id:03}"
-            rider_id = f"{rd_id}"
-
-            # Step 3: Update the customer record with the generated user_id
-            cursor.execute("UPDATE riders SET rider_id = %s WHERE id = %s", (rider_id, rd_id))
-            
-            """ cursor.execute(""
-                INSERT INTO riders (rider_id, rider_name, rider_email, rider_number, password_hash)
-                VALUES (%s, %s, %s, %s, %s)
-            "", (rider_id, form_data['rider_name'], form_data['rider_email'], form_data['rider_number'], "None")) """
-
-            # Commit the transaction
-            connection.commit()
-
-            # create verification link
-            verification_link = f"{request.url_root}/verify_rider/{verification_token}"
-            body = f"Hi {form_data['rider_name']},\n\nPlease complete your registration and verify your email address by clicking the link below:\n{verification_link}\nThis link will expire in 1 hour.\n\nThank you for accepting to be our rider, Stallion Routes!"
-
-            # Prepare the mail
-            msg = EmailMessage()
-            msg['Subject'] = 'Verify Your Email - Stallion Routes'
-            msg['From'] = EMAIL_USER
-            msg['To'] = form_data['rider_email']
-            msg.set_content(body)
-
-            # Send the email
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-                smtp.login(EMAIL_USER, EMAIL_PASSWORD)
-                smtp.send_message(msg)
-
-            # Emit a notification for new rider registration
-            socketio.emit('new_rider', {'message': 'A new rider has been registered!'})
-            flash("Registration successful! \nProceed to your mail to complete registartion", "success")
-            
-            # Redirect to clear form fields
-            return redirect(url_for('admin_rider'))
-        
-        finally:
-            # Ensure the database connection is closed
-            cursor.close()
-            connection.close()
-
-    return render_template('admin_rider.html', form_data={}, table_data=table_data, 
+    return render_template('admin_rider.html', table_data=table_data, 
             rider_data=rider_data, current_date=current_date, current_time=current_time)
 
-@app.route('/verify_rider/<token>')
-def verify_rider_email(token):
+@app.route('/admin_customer')
+def admin_customer():
+    # Get current date and time
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    current_time = datetime.now().strftime('%H:%M:%S')
+
     connection = get_db_connection()
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT id, name, email, phone, is_verified
+        FROM users
+    """)
+    customer_data = cursor.fetchall()
 
-    try:
-        cursor.execute("SELECT rider_id FROM riders WHERE verification_token = %s AND is_verified = %s AND expires_at > NOW()", (token, False))
-        rider = cursor.fetchone()
+    return render_template('admin_customer.html', current_date=current_date, current_time=current_time, customer_data=customer_data)
 
-        if rider:
-            # Mark the user as verified
-            cursor.execute("UPDATE riders SET is_verified = %s WHERE id = %s", (True, rider[0]))
-            connection.commit()
-            flash('Email verified successfully! You can now log in.', 'success')
-            return redirect(url_for('rider_signup'))
-        else:
-            flash('Invalid or expired verification link.', 'danger')
-            return redirect(url_for('rider_signup'))
-    finally:
-        cursor.close()
-        connection.close()
+@app.route('/transaction_history')
+def transaction_history():
+    return render_template('transaction_history.html')
 
-@app.route('/resend_rider_verification', methods=['POST'])
-def resend_rider_verification():
-    if request.method == 'POST':
-        email = session['rider_email']  # Get the email from the session
-        connection = get_db_connection()
-        cursor = connection.cursor(dictionary=True)
-
-        try:
-            cursor.execute("SELECT * FROM riders WHERE rider_email = %s", (email,))
-            rider = cursor.fetchone()
-
-            if rider and not rider['is_verified']:  # Check if the user is not verified
-                verification_token = str(uuid.uuid4())
-                cursor.execute("UPDATE riders SET verification_token = %s, expires_at = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE rider_email = %s", (verification_token, email))
-                connection.commit()
-
-                # Create the verification link
-                verification_url = f"{request.url_root}/verify_rider/{verification_token}"
-                body = f"Hi,\n\nPlease verify your email address by clicking the link below:\n{verification_url}\nThis link will expire in 1 hour.\n\nThank you!"
-                
-                # Prepare the email
-                msg = EmailMessage()
-                msg['Subject'] = 'Resend Verification - Stallion Routes'
-                msg['From'] = EMAIL_USER
-                msg['To'] = email
-                msg.set_content(body)
-
-                # Send the email
-                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-                    smtp.login(EMAIL_USER, EMAIL_PASSWORD)
-                    smtp.send_message(msg)
-
-                flash('Verification link resent! Please check your email.', 'info')
-            else:
-                flash('Email not found or already verified.', 'danger')
-        except Error as err:
-            flash(f"Error: {err}", 'danger')
-        finally:
-            cursor.close()
-            connection.close()
-    return redirect(url_for('rider_settings'))
-
+####### SUGGESTED BY COPILOT   ########
 @app.route('/delete_rider/<int:rider_id>', methods=['POST'])
 def delete_rider(rider_id):
     connection = get_db_connection()
@@ -1498,26 +1629,6 @@ def edit_rider(rider_id):
     else:
         # Render the edit form with the existing rider data
         return render_template('edit_rider.html', rider_data=rider_data)
-
-@app.route('/admin_customer')
-def admin_customer():
-    # Get current date and time
-    current_date = datetime.now().strftime('%Y-%m-%d')
-    current_time = datetime.now().strftime('%H:%M:%S')
-
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT id, name, email, phone, is_verified
-        FROM users
-    """)
-    customer_data = cursor.fetchall()
-
-    return render_template('admin_customer.html', current_date=current_date, current_time=current_time, customer_data=customer_data)
-
-@app.route('/transaction_history')
-def transaction_history():
-    return render_template('transaction_history.html')
 
 # Dictionary to store live locations for requests
 # rider_locations = {}

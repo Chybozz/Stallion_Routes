@@ -131,7 +131,8 @@ if (window.location.pathname.includes('rider_dashboard')) {
                         if (actionValue === 'deliver') {
                             // document.getElementById(`request-card-${requestID}`).remove();
                             const card = document.getElementById(`request-card-${requestID}`);
-                            const button = card.querySelector('button[name="action"]');
+                            const button = card.querySelector('button[data-request-id]'); // Find the button within the card
+                            //button.classList.remove('btn-primary', 'deliver-btn');
                             button.remove();
                             const label = document.createElement('label');
                             label.className = 'text-success';

@@ -50,7 +50,27 @@
                     <span id="notify" class="start-100 badge rounded-pill bg-danger">
                         0
                     </span>
-                    <span class="float-end">Amount Earned <span>₦ 0</span></span>
+                    <span class="dropdown">
+                        <span id="wallet-balance" class="float-end btn border-2 border-black dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Amount Earned <span>₦ {{ wallet_balance }}</span></span>
+                      
+                        <ul class="dropdown-menu px-2">
+                            <h6>Recent Payouts</h6>
+                            <table>
+                                <tr>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Reference</th>
+                                </tr>
+                                {% for record in salary_history %}
+                                <tr>
+                                    <td>₦{{ record.amount_paid }}</td>
+                                    <td>{{ record.paid_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ record.reference }}</td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </ul>
+                    </span>
                     <div class="d-flex gap-2 my-3">
                         <button id="new-btn-deliveries" class="btn btn-stallion hidden">New Deliveries</button>
                         <button id="active-btn-deliveries" class="btn btn-stallion">Active Deliveries</button>
@@ -154,13 +174,14 @@
                                 {% endif %}
                             </form>
 
-                            <div class="mt-4">
+                            <div class="mt-4" hidden>
                                 <div id="rider-location-map" class="text-start" style="display: none;">
                                     <p><strong>Rider's Location (Live Map):</strong></p>
                                     <div id="rider-map" class="border border-black border-2 rounded-3"></div>
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-lg-4 col-md-12 col-12 order-1 order-lg-2">
                             <h5 class="mt-4">Delivery History</h5>
                             {% if completed_deliveries %}
