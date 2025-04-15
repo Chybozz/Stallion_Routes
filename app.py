@@ -450,7 +450,7 @@ def rider_signup():
             connection.close()
     return render_template('rider_signup.html')
 
-@app.route('/rider_registration', methods=['POST'])
+@app.route('/rider_registration', methods=['GET','POST'])
 def rider_registration():
     if request.method == 'POST':
         # uploaded_filename = None  # Default is None
