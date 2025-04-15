@@ -456,7 +456,7 @@ def rider_registration():
         # uploaded_filename = None  # Default is None
 
         # Check if file is present in request
-        if 'profile_pictures' not in request.files:
+        """ if 'profile_pictures' not in request.files:
             return render_template('rider_registration.html', error="No file part")
 
         file = request.files['profile_pictures']
@@ -467,7 +467,7 @@ def rider_registration():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)  # Save file to folder
+            file.save(filepath) """  # Save file to folder
 
             # uploaded_filename = filename
 
@@ -517,11 +517,11 @@ def rider_registration():
 
             # Insert the new rider into the database
             cursor.execute("""
-                INSERT INTO riders (rider_name, rider_email, rider_photo, rider_number, rider_age, rider_address, city,
+                INSERT INTO riders (rider_name, rider_email, rider_number, rider_age, rider_address, city,
                     state, rider_nin, account_number, bank_name, vehicle, guarantor_name, guarantor_number, guarantor_address, 
                     guarantor_relationship, guarantor_occupation, guarantor_state, verification_token, is_verified, expires_at)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
-            """, (rider_name, rider_email, filename, rider_number, rider_age, 
+            """, (rider_name, rider_email, rider_number, rider_age, 
                   residential_address, rider_city, rider_state, nin, acct_num, 
                   bank_name, rider_vehicle, guarantor_name, guarantor_number, guarantor_residential_address, 
                   guarantor_relationship, guarantor_occupation, guarantor_state, 
