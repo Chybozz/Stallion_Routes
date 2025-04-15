@@ -483,6 +483,7 @@ def rider_registration():
         nin = request.form['nin']
         acct_num = request.form['acct_num']
         bank_name = request.form['bank_name']
+        rider_vehicle = request.form['rider_vehicle']
         guarantor_name = request.form['guarantor_name']
         guarantor_number = request.form['guarantor_number']
         guarantor_residential_address = request.form['guarantor_residential_address']
@@ -517,12 +518,12 @@ def rider_registration():
             # Insert the new rider into the database
             cursor.execute("""
                 INSERT INTO riders (rider_name, rider_email, rider_photo, rider_number, rider_age, rider_address, city,
-                    state, rider_nin, account_number, bank_name, guarantor_name, guarantor_number, guarantor_address, 
+                    state, rider_nin, account_number, bank_name, vehicle, guarantor_name, guarantor_number, guarantor_address, 
                     guarantor_relationship, guarantor_occupation, guarantor_state, verification_token, is_verified, expires_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
             """, (rider_name, rider_email, filename, rider_number, rider_age, 
                   residential_address, rider_city, rider_state, nin, acct_num, 
-                  bank_name, guarantor_name, guarantor_number, guarantor_residential_address, 
+                  bank_name, rider_vehicle, guarantor_name, guarantor_number, guarantor_residential_address, 
                   guarantor_relationship, guarantor_occupation, guarantor_state, 
                   verification_token, False))  # Set is_verified to False initially
             rd_id = cursor.lastrowid  # Get the auto-incremented ID
