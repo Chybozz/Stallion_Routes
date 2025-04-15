@@ -562,9 +562,6 @@ def rider_registration():
             # Emit a notification for new rider registration
             socketio.emit('new_rider', {'message': 'A new rider has been registered!'})
             flash("Registration successful! \nProceed to your mail to complete registration", "success")
-            
-            # Redirect to clear form fields
-            return redirect(url_for('rider_registration'))
         
         finally:
             # Ensure the database connection is closed
