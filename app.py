@@ -1561,6 +1561,50 @@ def admin_customer():
 def transaction_history():
     return render_template('transaction_history.html')
 
+@app.route('/admin_payments', methods=['GET', 'POST'])
+def admin_payments():
+    if request.method == 'POST':
+        rider_id = request.form.get('rider_id')
+
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        # Fetch actual wallet balance from DB
+        cursor.execute("SELECT wallet_balance FROM riders WHERE rider_id = %s", (rider_id,))
+        result = cursor.fetchone()
+
+        if result and result['wallet_balance'] > 0:
+            wallet = result['wallet_balance']
+            reference = str(uuid.uuid4())[:8]
+
+            # Store salary payout record
+            cursor.execute("""
+                INSERT INTO rider_salary_history (rider_id, amount_paid, paid_at, reference)
+                VALUES (%s, %s, %s, %s)
+            """, (rider_id, wallet, datetime.now(), reference))
+
+            # Reset wallet to 0
+            cursor.execute("UPDATE riders SET wallet_balance = 0 WHERE rider_id = %s", (rider_id,))
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+    # Fetch updated wallet balances for all riders
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    cursor.execute("SELECT rider_id, rider_name, wallet_balance FROM riders")
+    payment_data = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    current_time = datetime.now().strftime('%H:%M:%S')
+
+    return render_template('admin_payments.html', current_date=current_date, current_time=current_time, payment_data=payment_data)
+
 ####### SUGGESTED BY COPILOT   ########
 @app.route('/delete_rider/<int:rider_id>', methods=['POST'])
 def delete_rider(rider_id):

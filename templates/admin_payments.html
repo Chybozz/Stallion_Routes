@@ -27,7 +27,7 @@
             <ul class="nav flex-column">
                 <li class="nav-item"><a class="nav-link" href="{{url_for('admin')}}"><i class="fas fa-home"></i> <span>Overview</span></a></li>
                 <li class="nav-item"><a class="nav-link" href="#requests"><i class="fas fa-tasks"></i> <span>Requests</span></a></li>
-                <li class="nav-item"><a class="nav-link active show" href="{{url_for('admin_rider')}}"><i class="fas fa-biking"></i> <span>Riders</span></a></li>
+                <li class="nav-item"><a class="nav-link" href="{{url_for('admin_rider')}}"><i class="fas fa-biking"></i> <span>Riders</span></a></li>
                 <li class="nav-item"><a class="nav-link" href="{{url_for('admin_customer')}}"><i class="fas fa-users"></i> <span>Customers</span></a></li>
                 <li class="nav-item">
                 <a class="nav-link" href="#transactionMenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="transactionMenu">
@@ -38,7 +38,7 @@
                     <a class="nav-link" href="#handoff">Handoff</a>
                 </div>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="{{url_for('admin_payments')}}"><i class="fas fa-money"></i> <span>Payments</span></a></li>
+                <li class="nav-item"><a class="nav-link active show" href="{{url_for('admin_payments')}}"><i class="fas fa-money"></i> <span>Payments</span></a></li>
                 <li class="nav-item"><a class="nav-link" href="#profile"><i class="fas fa-user"></i> <span>Profile</span></a></li>
                 <li class="nav-item"><a class="nav-link" href="#signout"><i class="fas fa-sign-out-alt"></i> <span>Sign Out</span></a></li>
             </ul>
@@ -67,7 +67,7 @@
                 </div>
             </div>
         </div>
-        <div class="mb-3">
+        <div class="d-flex mb-3">
             <span class="form-label float-start me-2 py-1">State :</span>
             <select name="select-state" id="select-state" class="form-select border focus-ring w-25" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);">
                 <option selected disabled value="">Choose a state</option>
@@ -78,6 +78,7 @@
                 <option value="Enugu">Enugu</option>
                 <option value="Uyo">Uyo</option>
             </select>
+            <a href="rider_admin#form-rider-reg" type="button" id="form-rider-reg-tab" class="btn btn-primary ms-auto">Add New Rider</a>
         </div>
 
         <!-- Overview Section -->
@@ -121,98 +122,57 @@
 
         <div class="row">
             <div class="col-lg-9">
-                <!-- Display flash messages -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        <div class="col-12">
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                        </div>
-                    {% endif %}
-                {% endwith %}
-
-                <!-- Riders Section -->
-                <section id="riders" class="mb-3">
-                    <div class="d-flex mb-3">
-                        <h4>Riders</h4>
-                        <a href="#form-rider-reg" type="button" id="form-rider-reg-tab" class="btn btn-primary ms-auto">Add New Rider</a>
-                    </div>
+                <!-- payment table (to trigger payments for all our riders) -->
+                <section id="requests" class="mb-5">
+                    <h4>Payment Requests</h4>
                     <div class="table-responsive">
                         <table class="table table-striped table-hover text-nowrap">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Address</th>
-                                    <th>State</th>
-                                    <th>Bank Details</th>
+                                    <th>Rider Name</th>
+                                    <th>Amount</th>
+                                    <th>Reference</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% if rider_data %}
-                                    {% for request in rider_data %}
+                                {% if payment_data %}
+                                    {% for payment in payment_data %}
                                         <tr>
-                                            <td>{{ request.id }}</td>
-                                            <td>{{ request.rider_name }}
-                                                <p class="m-0">{{ request.rider_number }}</p>
-                                            </td>
-                                            <td>{{ request.rider_email }}</td>
-                                            <td>{{ request.rider_address }}
-                                                <p class="m-0">{{ request.city }}</p>
-                                            </td>
-                                            <td>{{ request.state }}</td>
-                                            <td>{{ request.account_number }}
-                                                <p class="m-0">{{ request.bank_name }}</p>
+                                            <td>{{ loop.index }}</td>
+                                            <td>{{ payment.rider_name }}</td>
+                                            <td>₦{{ payment.wallet_balance }}</td>
+                                            <td>{{ payment.reference or '—' }}</td>
+                
+                                            <td>
+                                                {% if payment.wallet_balance > 0 %}
+                                                    <form method="POST" action="{{ url_for('admin_payments') }}">
+                                                        <input type="hidden" name="rider_id" value="{{ payment.rider_id }}">
+                                                        <button type="submit" class="btn btn-success btn-sm">Pay Now</button>
+                                                    </form>
+                                                {% else %}
+                                                    <span class="text-muted">Paid</span>
+                                                {% endif %}
                                             </td>
                                         </tr>
-                                        <!-- Additional rows -->
                                     {% endfor %}
                                 {% else %}
                                     <tr>
-                                        <td colspan="6">No rider data available</td>
+                                        <td colspan="7" class="text-center">No payment requests available</td>
                                     </tr>
                                 {% endif %}
                             </tbody>
                         </table>
                     </div>
-                </section>
-
-                <div class="container-fluid mb-3">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover text-nowrap">
-                            <thead>
-                                <tr>
-                                    {% for column in table_data[0].keys() %}
-                                        <th>{{ column }}</th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for row in table_data %}
-                                    <tr>
-                                        {% for cell in row.values() %}
-                                            <td>{{ cell }}</td>
-                                        {% endfor %}
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <hr class="top-nav" style="height: 5px; " />
+                </section>                
             </div>
         
             <div class="col-lg-3">
                 <!-- Requests Section -->
                 <section id="performer" class="mb-5">
                     <div class="top-performer">
-                        <h4>Top Performer</h4>
+                        <h4>Top Customer</h4>
                         <img src="https://via.placeholder.com/100" alt="Top Performer">
                         <p><strong>Michael Brown</strong></p>
                         <p>State: Abuja</p>
