@@ -13,6 +13,14 @@ def get_db_connection():
                 database=os.environ.get('DB_NAME'),  # Replace with your database name
                 unix_socket=f"/cloudsql/{os.environ.get('DB_CONNECTION_NAME')}" # Replace with your Cloud SQL connection name
             )
+        # for namecheap mysql database
+        elif os.environ.get("DB_PROVIDER") == "namecheap":
+            return mysql.connector.connect(
+                host=os.environ.get('DB_HOST_NAMECHEAP'),  # Replace with your MySQL host
+                user=os.environ.get('DB_USER_NAMECHEAP'),  # Replace with your MySQL username
+                password=os.environ.get('DB_PASS_NAMECHEAP'),  # Replace with your MySQL password
+                database=os.environ.get('DB_NAME_NAMECHEAP')  # Replace with your database name
+            )
         else:
             # Running locally or in a different environment
             return mysql.connector.connect(
