@@ -29,6 +29,8 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', secret_key)
 socketio = SocketIO(app, cors_allowed_origins="*") # Initialize SocketIO
 CORS(app)  # Enable CORS
 
+application = app  # For deployment with Gunicorn or other WSGI servers
+
 EMAIL_USER = os.getenv('EMAIL_USER')
 EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 
