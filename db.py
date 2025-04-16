@@ -1,37 +1,22 @@
 import os
 import mysql.connector
-from mysql.connector import Error
 
 def get_db_connection():
-    try:
-        # for namecheap mysql database
-        if os.environ.get("DB_PROVIDER") == "namecheap":
-            return mysql.connector.connect(
-                host=os.environ.get('DB_HOST'),  # Replace with your MySQL host
-                user=os.environ.get('DB_USER'),  # Replace with your MySQL username
-                password=os.environ.get('DB_PASS'),  # Replace with your MySQL password
-                database=os.environ.get('DB_NAME')  # Replace with your database name
-            )
-        else:
-            # Running locally or in a different environment
-            return mysql.connector.connect(
-                host='localhost',  # Replace with your local MySQL host
-                user='root',  # Replace with your local MySQL username
-                password='Onuchukwu12!',  # Replace with your local MySQL password
-                database='stallionroutes'  # Replace with your local database name
-            )
-    except Error as err:
-        print(f"Error: {err}")
-        return None
+    # for namecheap mysql database
+    return mysql.connector.connect(
+        host=os.environ.get('DB_HOST'),  # Replace with your MySQL host
+        user=os.environ.get('DB_USER'),  # Replace with your MySQL username
+        password=os.environ.get('DB_PASS'),  # Replace with your MySQL password
+        database=os.environ.get('DB_NAME')  # Replace with your database name
+    )
 
 """ # Running locally or in a different environment
     return mysql.connector.connect(
-        # Replace with your Cloud SQL instance connection details
-            host='localhost',
-            user='root',
-            password='Onuchukwu12!',
-            database='stallionroutes'
-        )
+        host='localhost',  # Replace with your local MySQL host
+        user='root',  # Replace with your local MySQL username
+        password='Onuchukwu12!',  # Replace with your local MySQL password
+        database='stallionroutes'  # Replace with your local database name
+    )
     
 
     if os.environ.get("GAE_ENV", "").startswith("standard") or os.environ.get("K_SERVICE"):
