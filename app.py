@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 from email.message import EmailMessage
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS  # Import CORS
+# from config import get_db_connection
 from db import get_db_connection  # Ensure this import is correct
 from werkzeug.security import generate_password_hash, check_password_hash
 from mysql.connector import Error  # Add this import
@@ -456,7 +457,7 @@ def rider_registration():
         # uploaded_filename = None  # Default is None
 
         # Check if file is present in request
-        """ if 'profile_pictures' not in request.files:
+        if 'profile_pictures' not in request.files:
             return render_template('rider_registration.html', error="No file part")
 
         file = request.files['profile_pictures']
@@ -467,7 +468,7 @@ def rider_registration():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath) """  # Save file to folder
+            file.save(filepath)  # Save file to folder
 
             # uploaded_filename = filename
 
@@ -496,32 +497,32 @@ def rider_registration():
         cursor = connection.cursor(dictionary=True)
         
         try:
+            # Step 1: Check for duplicates
             # Check if the email, rider phone, or guarantor phone already exists
-            cursor.execute("SELECT * FROM riders WHERE rider_email = %s OR rider_number = %s OR guarantor_number = %s OR account_number = %s", 
-                           (rider_email, rider_number, guarantor_number, acct_num))
-            rider = cursor.fetchone()
+            check_fields = {
+                "Email already registered!": ("rider_email", rider_email),
+                "Rider Phone Number already registered!": ("rider_number", rider_number),
+                "Guarantor Phone Number already registered!": ("guarantor_number", guarantor_number),
+                "Account Number already registered!": ("account_number", acct_num),
+            }
 
-            if rider:
-                if rider['rider_email'] == rider_email:
-                    flash("Email already registered!", "danger")
-                elif rider['rider_number'] == rider_number:
-                    flash("Rider Phone Number already registered!", "danger")
-                elif rider['guarantor_number'] == guarantor_number:
-                    flash("Guarantor Phone Number already registered!", "danger")
-                
-                # Return to the form with pre-filled data
-                return render_template('rider_registration.html')
+            for msg, (field, value) in check_fields.items():
+                cursor.execute(f"SELECT * FROM riders WHERE {field} = %s", (value,))
+                if cursor.fetchone():
+                    flash(msg, "danger")
+                    return redirect(url_for('rider_registration'))
             
+            # Step 2: Passed duplicate check
             # Generate a verification token
             verification_token = str(uuid.uuid4())  # Generate a unique token
 
             # Insert the new rider into the database
             cursor.execute("""
-                INSERT INTO riders (rider_name, rider_email, rider_number, rider_age, rider_address, city,
+                INSERT INTO riders (rider_name, rider_email, rider_photo, rider_number, rider_age, rider_address, city,
                     state, rider_nin, account_number, bank_name, vehicle, guarantor_name, guarantor_number, guarantor_address, 
                     guarantor_relationship, guarantor_occupation, guarantor_state, verification_token, is_verified, expires_at)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
-            """, (rider_name, rider_email, rider_number, rider_age, 
+            """, (rider_name, rider_email, filename, rider_number, rider_age, 
                   residential_address, rider_city, rider_state, nin, acct_num, 
                   bank_name, rider_vehicle, guarantor_name, guarantor_number, guarantor_residential_address, 
                   guarantor_relationship, guarantor_occupation, guarantor_state, 
@@ -562,6 +563,9 @@ def rider_registration():
             # Emit a notification for new rider registration
             socketio.emit('new_rider', {'message': 'A new rider has been registered!'})
             flash("Registration successful! \nProceed to your mail to complete registration", "success")
+        except Exception as e:
+            flash("Error inserting rider: " + str(e), "danger")
+            connection.rollback()  # Rollback in case of error
         
         finally:
             # Ensure the database connection is closed
