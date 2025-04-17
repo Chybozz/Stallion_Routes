@@ -412,7 +412,7 @@ def rider_login():
         if rider and check_password_hash(rider['password'], password): # Verify rider password
             if not rider['is_verified']:
                 flash('Your email is not verified. Please check your email.', 'warning')
-                return redirect(url_for('login'))
+                return redirect(url_for('rider_login'))
             session['rider_id'] = rider['rider_id']
             session['rider_full_name'] = rider['rider_name']
             session['rider_email'] = rider['rider_email']
@@ -1327,10 +1327,12 @@ def deliver():
                 vehicle = cursor.fetchone()
                 vehicle = vehicle[0] if vehicle else None  # extract the string value
 
+                print(f"Vehicle: {vehicle}, Rider ID: {rider_id}")
+
                 if vehicle == 'bike':
-                    delivery_amount = 2700.00
+                    delivery_amount = 2800.00
                 elif vehicle == 'keke':
-                    delivery_amount = 3700.00
+                    delivery_amount = 3800.00
                 else:
                     delivery_amount = 0.00  # fallback in case something went wrong
 
