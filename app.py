@@ -41,7 +41,7 @@ sk_test_4b450054ba0f838ba79c87463a462042c2a9736e # test key
  request_id = secrets.token_hex(4)
 print(f"Request ID: {request_id}") """
 
-# Folder to store uploaded images
+# Folder to store uploaded images 1
 # UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Ensure folder exists
