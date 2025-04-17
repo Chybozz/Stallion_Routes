@@ -4,13 +4,14 @@ from email.message import EmailMessage
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS  # Import CORS
 # from config import get_db_connection
-from db import get_db_connection  # Ensure this import is correct
+# from db import get_db_connection  # Ensure this import is correct
 from werkzeug.security import generate_password_hash, check_password_hash
 from mysql.connector import Error  # Add this import
 from datetime import datetime
 from dotenv import load_dotenv
 from collections import defaultdict
 from decimal import Decimal
+import mysql.connector
 import smtplib
 import requests
 import random
@@ -41,11 +42,21 @@ sk_test_4b450054ba0f838ba79c87463a462042c2a9736e # test key
 print(f"Request ID: {request_id}") """
 
 # Folder to store uploaded images
-UPLOAD_FOLDER = 'static/uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# UPLOAD_FOLDER = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Ensure folder exists
 
 # Allowed extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def get_db_connection():
+    # for namecheap mysql database
+    return mysql.connector.connect(
+        host=os.environ.get('DB_HOST'),  # Replace with your MySQL host
+        user=os.environ.get('DB_USER'),  # Replace with your MySQL username
+        password=os.environ.get('DB_PASS'),  # Replace with your MySQL password
+        database=os.environ.get('DB_NAME')  # Replace with your database name
+    )
 
 def generate_request_id():
     connection = get_db_connection()
