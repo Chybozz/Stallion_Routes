@@ -54,11 +54,11 @@ tbody {
 
 /* Hero Section */
 .cover-img {
-    background-image: url('static/img/delivery_bike.png');
+    background-image: url('static/img/moving-bike.gif');
     background-size:contain;
     background-position: center;
     position: relative;
-    padding: 190px 0;
+    padding: 210px 0;
     color: #fff;
 }
 
@@ -562,13 +562,13 @@ footer {
     /* Hero Section */
     .cover-img {
         background-size: contain;
-        padding: 210px 0;
+        padding: 150px 0;
     }
     .hero-title {
-        font-size: 2.3rem;
+        font-size: 1.3rem;
     }
     .hero-subtitle {
-        font-size: 1rem;
+        font-size: 0.7rem;
     }
     .download-btn {
         font-size: 0.875rem;
