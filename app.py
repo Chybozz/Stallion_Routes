@@ -1494,7 +1494,7 @@ def admin():
         cursor.execute("SELECT COUNT(*) FROM delivery_requests WHERE status = 'delivered'")
         total_delivered = cursor.fetchone()[0]
 
-        cursor.execute("SELECT COUNT(*) FROM customers")
+        cursor.execute("SELECT COUNT(*) FROM users")
         total_customers = cursor.fetchone()[0]
 
         cursor.execute("SELECT COUNT(*) FROM riders")
