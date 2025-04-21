@@ -69,7 +69,7 @@
         </div>
         <div class="mb-3">
             <span class="form-label float-start me-2 py-1">State :</span>
-            <select name="select-state" id="select-state" class="form-select border focus-ring w-25" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);">
+            <select name="select-state" id="select-state" class="form-select border focus-ring" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);">
                 <option selected disabled value="">Choose a state</option>
                 <option value="All">All</option>
                 <option value="Aba">Aba</option>
@@ -88,7 +88,7 @@
                 <div class="card bg-success text-white">
                     <div class="card-body">
                         <h6 class="h6 text-dark">New/Active Requests</h6>
-                        <p class="card-text">120</p>
+                        <p class="card-text">{{ total_pending }} / {{ total_intransit }}</p>
                     </div>
                 </div>
             </div>
@@ -96,7 +96,7 @@
                 <div class="card bg-info text-white">
                     <div class="card-body">
                         <h6 class="h6 text-dark">Delivered Requests</h6>
-                        <p class="card-text">85</p>
+                        <p class="card-text">{{ total_delivered }}</p>
                     </div>
                 </div>
             </div>
@@ -104,7 +104,7 @@
             <div class="card bg-warning text-white">
                 <div class="card-body">
                     <h6 class="h6 text-dark">Total Customers</h6>
-                    <p class="card-text">230</p>
+                    <p class="card-text">{{ total_customers }}</p>
                 </div>
             </div>
             </div>
@@ -112,7 +112,7 @@
             <div class="card bg-danger text-white">
                 <div class="card-body">
                     <h6 class="h6 text-dark">Total Riders</h6>
-                    <p class="card-text">45</p>
+                    <p class="card-text">{{ total_riders }}</p>
                 </div>
             </div>
             </div>
