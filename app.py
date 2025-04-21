@@ -24,16 +24,15 @@ load_dotenv()  # Load the .env file
 
 app = Flask(__name__)
 secret_key = secrets.token_hex() # os.getenv('SECRET_KEY', secrets.token_hex())
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', secret_key)
-# app.config.from_object(Config)
-# mail = Mail(app)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', secret_key) # Set a default secret key if not found in .env
 socketio = SocketIO(app, cors_allowed_origins="*") # Initialize SocketIO
 CORS(app)  # Enable CORS
 
 application = app  # For deployment with Gunicorn or other WSGI servers
 
-EMAIL_USER = os.getenv('EMAIL_USER')
-EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
+EMAIL_USER = 'no-reply@stallionroutes.com' # os.getenv('EMAIL_USER')
+EMAIL_HOST = 'stallionroutes.com' # os.getenv('EMAIL_HOST')
+EMAIL_PASSWORD = 'I6()E3FuEZ#1' # os.getenv('EMAIL_PASSWORD')
 
 PAYSTACK_SECRET_KEY = 'sk_test_4b450054ba0f838ba79c87463a462042c2a9736e' #e.g
 """sk_live_4bb1aadf6285b8b9e2150f2836fbf930062576f3 # live key
@@ -57,6 +56,10 @@ def get_db_connection():
         password=os.environ.get('DB_PASS'),  # Replace with your MySQL password
         database=os.environ.get('DB_NAME')  # Replace with your database name
     )
+
+# Function to check if file extension is allowed
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def generate_request_id():
     connection = get_db_connection()
@@ -114,7 +117,7 @@ def send_mail_to_rider():
             msg.set_content(body)
 
             # Send the email
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
                 smtp.login(EMAIL_USER, EMAIL_PASSWORD)
                 smtp.send_message(msg)
 
@@ -211,7 +214,7 @@ def signup():
             msg.set_content(body)
 
             # Send the email
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
                 smtp.login(EMAIL_USER, EMAIL_PASSWORD)
                 smtp.send_message(msg)
 
@@ -274,7 +277,7 @@ def resend_verification():
                 msg.set_content(body)
 
                 # Send the email
-                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
                     smtp.login(EMAIL_USER, EMAIL_PASSWORD)
                     smtp.send_message(msg)
 
@@ -320,7 +323,7 @@ def forgot_password():
                 msg['To'] = email
                 msg.set_content(f"Hi,\n\nTo reset your password, please click the link below:\n{reset_url}\nThis link will expire in 1 hour.\n\nThank you!")
 
-                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
                     smtp.login(EMAIL_USER, EMAIL_PASSWORD)
                     smtp.send_message(msg)
 
@@ -569,7 +572,7 @@ def rider_registration():
             msg.set_content(body)
 
             # Send the email
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
                 smtp.login(EMAIL_USER, EMAIL_PASSWORD)
                 smtp.send_message(msg)
 
@@ -637,7 +640,7 @@ def resend_rider_verification():
                 msg.set_content(body)
 
                 # Send the email
-                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
                     smtp.login(EMAIL_USER, EMAIL_PASSWORD)
                     smtp.send_message(msg)
 
@@ -686,7 +689,7 @@ def rider_forgot_password():
                 msg['To'] = rider_email
                 msg.set_content(f"Hi,\n\nTo reset your password, please click the link below:\n{reset_url}\nThis link will expire in 1 hour.\n\nThank you!")
 
-                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
                     smtp.login(EMAIL_USER, EMAIL_PASSWORD)
                     smtp.send_message(msg)
 
@@ -1425,10 +1428,6 @@ def rider_settings():
 
     return render_template('rider_settings.html', rider_id=rider_id, rider_name=rider_name, rider_email=rider_email, 
             rider_phone=rider_phone, filename=filename, current_date=current_date, current_time=current_time, account_verified=account_verified)
-
-# Function to check if file extension is allowed
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/update_profile_picture', methods=['POST'])
 def update_profile_picture():
