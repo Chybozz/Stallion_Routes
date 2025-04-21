@@ -1,6 +1,6 @@
 deployment:
   tasks:
-    - export FLASK_APP=Stallion-Routes/app.py
-    - cd Stallion-Routes
+    - export FLASK_APP=Stallion_Routes/app.py
+    - cd Stallion_Routes
     - git pull origin main
     - touch tmp/restart.txt
