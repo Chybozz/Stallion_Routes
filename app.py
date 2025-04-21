@@ -1560,11 +1560,26 @@ def admin_rider():
     """)
     rider_data = cursor.fetchall()
 
+    cursor.execute("SELECT COUNT(*) AS count FROM delivery_requests WHERE status = 'pending'")
+    total_pending = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM delivery_requests WHERE status = 'in transit'")
+    total_intransit = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM delivery_requests WHERE status = 'delivered'")
+    total_delivered = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM users")
+    total_customers = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM riders")
+    total_riders = cursor.fetchone()['count']
+
     cursor.close()
     connection.close()
 
-    return render_template('admin_rider.html', table_data=table_data, 
-            rider_data=rider_data, current_date=current_date, current_time=current_time)
+    return render_template('admin_rider.html', table_data=table_data, rider_data=rider_data,  total_pending=total_pending, total_intransit=total_intransit, total_delivered=total_delivered, 
+        total_customers=total_customers, total_riders=total_riders, current_date=current_date, current_time=current_time)
 
 @app.route('/admin_customer')
 def admin_customer():
@@ -1580,7 +1595,24 @@ def admin_customer():
     """)
     customer_data = cursor.fetchall()
 
-    return render_template('admin_customer.html', current_date=current_date, current_time=current_time, customer_data=customer_data)
+    cursor.execute("SELECT COUNT(*) AS count FROM delivery_requests WHERE status = 'pending'")
+    total_pending = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM delivery_requests WHERE status = 'in transit'")
+    total_intransit = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM delivery_requests WHERE status = 'delivered'")
+    total_delivered = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM users")
+    total_customers = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM riders")
+    total_riders = cursor.fetchone()['count']
+
+    return render_template('admin_customer.html', current_date=current_date, current_time=current_time, customer_data=customer_data, 
+        total_pending=total_pending, total_intransit=total_intransit, total_delivered=total_delivered, 
+        total_customers=total_customers, total_riders=total_riders, )
 
 @app.route('/transaction_history')
 def transaction_history():
@@ -1622,13 +1654,30 @@ def admin_payments():
     cursor.execute("SELECT rider_id, rider_name, wallet_balance FROM riders")
     payment_data = cursor.fetchall()
 
+    cursor.execute("SELECT COUNT(*) AS count FROM delivery_requests WHERE status = 'pending'")
+    total_pending = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM delivery_requests WHERE status = 'in transit'")
+    total_intransit = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM delivery_requests WHERE status = 'delivered'")
+    total_delivered = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM users")
+    total_customers = cursor.fetchone()['count']
+
+    cursor.execute("SELECT COUNT(*) AS count FROM riders")
+    total_riders = cursor.fetchone()['count']
+
     cursor.close()
     connection.close()
 
     current_date = datetime.now().strftime('%Y-%m-%d')
     current_time = datetime.now().strftime('%H:%M:%S')
 
-    return render_template('admin_payments.html', current_date=current_date, current_time=current_time, payment_data=payment_data)
+    return render_template('admin_payments.html', current_date=current_date, current_time=current_time, payment_data=payment_data, 
+        total_pending=total_pending, total_intransit=total_intransit, total_delivered=total_delivered, 
+        total_customers=total_customers, total_riders=total_riders, )
 
 ####### SUGGESTED BY COPILOT   ########
 @app.route('/delete_rider/<int:rider_id>', methods=['POST'])
