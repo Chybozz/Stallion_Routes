@@ -50,7 +50,7 @@
                     <span id="notify" class="start-100 badge rounded-pill bg-danger">
                         0
                     </span>
-                    <span class="dropdown mb-2">
+                    <span class="dropdown mb-3">
                         <span id="wallet-balance" class="float-end btn border-2 border-black dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Amount Earned <span>₦ {{ wallet_balance }}</span></span>
                       
                         <ul class="dropdown-menu px-2">
@@ -71,7 +71,7 @@
                             </table>
                         </ul>
                     </span>
-                    <div class="d-flex gap-2 my-3">
+                    <div class="d-flex gap-2 mt-3 mb-2">
                         <button id="new-btn-deliveries" class="btn btn-stallion hidden">New Deliveries</button>
                         <button id="active-btn-deliveries" class="btn btn-stallion">Active Deliveries</button>
                     </div>
@@ -80,7 +80,7 @@
                             <!-- New Deliveries Items -->
                             <form id="accept_delivery" action="/rider_dashboard" method="post">
                                 {% if delivery_requests %}
-                                <div id="new-deliveries" class="mt-2">
+                                <div id="new-deliveries" class="mt-3">
                                     <h5 class="text-start">New Delivery Requests</h5>
                                     {% for request in delivery_requests %}
                                     <div class="card text-card text-capitalize mb-3" id="request-card-{{ request[0] }}">
@@ -126,7 +126,7 @@
                             <!-- Accepted Deliveries Items -->
                             <form id="accept_delivery" action="/deliver" method="post">
                                 {% if accepted_requests %}
-                                <div id="active-deliveries" class="hidden mt-2">
+                                <div id="active-deliveries" class="hidden mt-3">
                                     <h5 class="text-start">Active Deliveries</h5>
                                     {% for request in accepted_requests %}
                                     <div class="card text-card text-capitalize mb-3" id="request-card-{{ request[0] }}">
@@ -183,9 +183,9 @@
                         </div>
 
                         <div class="col-lg-4 col-md-12 col-12 order-1 order-lg-2">
-                            <h5 class="mt-4">Delivery History</h5>
+                            <h5 class="mt-3">Delivery History</h5>
                             {% if completed_deliveries %}
-                            <div id="delivery-history" class="text-card p-bottom border border-1 rounded-2 p-3 mt-1">
+                            <div id="delivery-history" class="text-card overflow-y-auto p-bottom border border-1 rounded-2 p-3 mt-1">
                                 {% for request in completed_deliveries %}
                                 <strong>Request ID: {{ request[0] }}</strong>
                                 <p>Delivery Type: {{ request[1] }}</p>
