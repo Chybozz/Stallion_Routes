@@ -47,30 +47,32 @@
         <div class="container-fluid p-0 bg-white">
             <div class="container-fluid p-0">
                 <div class="dashboard-container">
-                    <span id="notify" class="start-100 badge rounded-pill bg-danger">
-                        0
-                    </span>
-                    <span class="dropdown mb-3">
-                        <span id="wallet-balance" class="float-end btn border-2 border-black dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Amount Earned <span>₦ {{ wallet_balance }}</span></span>
-                      
-                        <ul class="dropdown-menu px-2">
-                            <h6>Recent Payouts</h6>
-                            <table class="text-nowrap table table-striped table-bordered table-hover">
-                                <tr>
-                                    <th>Amount</th>
-                                    <th>Date</th>
-                                    <th>Reference</th>
-                                </tr>
-                                {% for record in salary_history %}
-                                <tr>
-                                    <td>₦{{ record[0] }}</td>
-                                    <td>{{ record[1].strftime('%Y-%m-%d %H:%M') }}</td>
-                                    <td>{{ record[2] }}</td>
-                                </tr>
-                                {% endfor %}
-                            </table>
-                        </ul>
-                    </span>
+                    <div class="mb-3">
+                        <span id="notify" class="start-100 badge rounded-pill bg-danger">
+                            0
+                        </span>
+                        <span class="dropdown">
+                            <span id="wallet-balance" class="float-end btn border-2 border-black dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Amount Earned <span>₦ {{ wallet_balance }}</span></span>
+                        
+                            <ul class="dropdown-menu px-2">
+                                <h6>Recent Payouts</h6>
+                                <table class="text-nowrap table table-striped table-bordered table-hover">
+                                    <tr>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Reference</th>
+                                    </tr>
+                                    {% for record in salary_history %}
+                                    <tr>
+                                        <td>₦{{ record[0] }}</td>
+                                        <td>{{ record[1].strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ record[2] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </table>
+                            </ul>
+                        </span>
+                    </div>
                     <div class="d-flex gap-2 mt-3 mb-2">
                         <button id="new-btn-deliveries" class="btn btn-stallion hidden">New Deliveries</button>
                         <button id="active-btn-deliveries" class="btn btn-stallion">Active Deliveries</button>
