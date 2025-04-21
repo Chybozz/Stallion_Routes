@@ -1485,12 +1485,20 @@ def update_profile_picture():
 def admin():
     connection = get_db_connection()
     with connection.cursor() as cursor:
-        sql = "SELECT * FROM users"
-        cursor.execute(sql)
-        customers = cursor.fetchall()
-        sql = "SELECT * FROM riders"
-        cursor.execute(sql)
-        riders = cursor.fetchall()
+        cursor.execute("SELECT COUNT(*) FROM delivery_requests WHERE status = 'pending'")
+        total_pending = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM delivery_requests WHERE status = 'in transit'")
+        total_intransit = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM delivery_requests WHERE status = 'delivered'")
+        total_delivered = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM customers")
+        total_customers = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM riders")
+        total_riders = cursor.fetchone()[0]
 
         # Select new_deliveries details
         cursor.execute("""
@@ -1525,7 +1533,8 @@ def admin():
         tran_details = cursor.fetchall()
     connection.close()
 
-    return render_template('admin.html', customers=customers, riders=riders, new_deliveries=new_deliveries, 
+    return render_template('admin.html', total_pending=total_pending, total_intransit=total_intransit, total_delivered=total_delivered, 
+        total_customers=total_customers, total_riders=total_riders, new_deliveries=new_deliveries, 
         delivered_requests=delivered_requests, tran_details=tran_details)
 
 @app.route('/admin_rider', methods=['GET', 'POST'])
