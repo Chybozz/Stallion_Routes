@@ -1,1 +1,1 @@
-A Stallion Route Logistics Application
+A Stallion Route Logistics Application (aka Stallion Group)
