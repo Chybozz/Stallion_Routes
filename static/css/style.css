@@ -63,7 +63,7 @@ tbody {
 }
 
 .msg-alert {
-    z-index: 2; /* Ensure it appears above other elements */
+    position: absolute;
 }
 
 /* Overlay for text readability */
