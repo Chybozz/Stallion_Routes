@@ -34,7 +34,7 @@ EMAIL_USER = 'no-reply@stallionroutes.com' # os.getenv('EMAIL_USER')
 EMAIL_HOST = 'stallionroutes.com' # os.getenv('EMAIL_HOST')
 EMAIL_PASSWORD = 'I6()E3FuEZ#1' # os.getenv('EMAIL_PASSWORD')
 
-PAYSTACK_SECRET_KEY = 'sk_live_4bb1aadf6285b8b9e2150f2836fbf930062576f3' #e.g
+PAYSTACK_SECRET_KEY = 'sk_test_4b450054ba0f838ba79c87463a462042c2a9736e' #e.g
 """sk_live_4bb1aadf6285b8b9e2150f2836fbf930062576f3 # live key
 sk_test_4b450054ba0f838ba79c87463a462042c2a9736e # test key
  request_id = secrets.token_hex(4)
