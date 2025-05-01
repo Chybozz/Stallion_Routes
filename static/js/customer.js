@@ -153,7 +153,7 @@ if (window.location.pathname.includes('dashboard')) {
         document.getElementById('waybillpackworth').addEventListener('input', function() {
             const sanitizedValue = this.value.replace(/,/g, '');
             const packageWorth = parseFloat(sanitizedValue) || 0;
-            const transportFee = Math.floor(0.2 * packageWorth) + 3000;
+            const transportFee = Math.floor(0.15 * packageWorth) + 1250;
             document.getElementById('transport_fee').textContent = transportFee.toLocaleString();
         });
 
@@ -166,7 +166,7 @@ if (window.location.pathname.includes('dashboard')) {
         document.getElementById('handoffpackworth').addEventListener('input', function() {
             const sanitizedValue = this.value.replace(/,/g, '');
             const packageWorth = parseFloat(sanitizedValue) || 0;
-            const transportFee = Math.floor(0.2 * packageWorth) + 3000;
+            const transportFee = Math.floor(0.15 * packageWorth) + 1250;
             document.getElementById('transport_fee').textContent = transportFee.toLocaleString();
         });
 
@@ -179,7 +179,7 @@ if (window.location.pathname.includes('dashboard')) {
         document.getElementById('foodworth').addEventListener('input', function() {
             const sanitizedValue = this.value.replace(/,/g, '');
             const packageWorth = parseFloat(sanitizedValue) || 0;
-            const transportFee = Math.floor(0.2 * packageWorth) + 1500;
+            const transportFee = Math.floor(0.15 * packageWorth) + 1250;
             document.getElementById('transport_fee').textContent = transportFee.toLocaleString();
         });
 
