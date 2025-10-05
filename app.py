@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 from email.message import EmailMessage
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS  # Import CORS
-# from config import get_db_connection
+from config import get_db_connection
 # from db import get_db_connection  # Ensure this import is correct
 from werkzeug.security import generate_password_hash, check_password_hash
 from mysql.connector import Error  # Add this import
@@ -11,7 +11,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from collections import defaultdict
 from decimal import Decimal
-import mysql.connector
+# import mysql.connector
 import smtplib
 import requests
 import random
@@ -28,17 +28,13 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', secret_key) # Set a default s
 socketio = SocketIO(app, cors_allowed_origins="*") # Initialize SocketIO
 CORS(app)  # Enable CORS
 
-application = app  # For deployment with Gunicorn or other WSGI servers
+app = app  # For deployment with Gunicorn or other WSGI servers
 
-EMAIL_USER = 'no-reply@stallionroutes.com' # os.getenv('EMAIL_USER')
-EMAIL_HOST = 'stallionroutes.com' # os.getenv('EMAIL_HOST')
-EMAIL_PASSWORD = 'I6()E3FuEZ#1' # os.getenv('EMAIL_PASSWORD')
+EMAIL_USER = os.getenv('EMAIL_USER')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 
-PAYSTACK_SECRET_KEY = 'sk_live_4bb1aadf6285b8b9e2150f2836fbf930062576f3' #e.g
-"""sk_live_4bb1aadf6285b8b9e2150f2836fbf930062576f3 # live key
-sk_test_4b450054ba0f838ba79c87463a462042c2a9736e # test key
- request_id = secrets.token_hex(4)
-print(f"Request ID: {request_id}") """
+PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
 
 # Folder to store uploaded images 1
 # UPLOAD_FOLDER = 'static/uploads'
@@ -48,14 +44,14 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Ensure folder exists
 # Allowed extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-def get_db_connection():
+""" def get_db_connection():
     # for namecheap mysql database
     return mysql.connector.connect(
         host=os.environ.get('DB_HOST'),  # Replace with your MySQL host
         user=os.environ.get('DB_USER'),  # Replace with your MySQL username
         password=os.environ.get('DB_PASS'),  # Replace with your MySQL password
         database=os.environ.get('DB_NAME')  # Replace with your database name
-    )
+    ) """
 
 # Function to check if file extension is allowed
 def allowed_file(filename):
