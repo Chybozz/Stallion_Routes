@@ -1,9 +1,13 @@
 import mysql.connector
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 def get_db_connection():
     return mysql.connector.connect(
-        host='stallionroutes-id.cnuw08cmoyx3.eu-north-1.rds.amazonaws.com',
-        user='stallion_user',
-        password='stallionroutes123!',
-        database='stallionroutes_db'  # Replace with your database name
+        host=os.getenv('DB_HOST'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASS'),
+        database=os.getenv('DB_NAME')
     )
