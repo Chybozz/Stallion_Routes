@@ -25,9 +25,16 @@ jobs:
       run: |
         ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
         cd ~/Stallion_Routes
+        echo "🚀 Pulling latest code..."
         git pull origin main
+
+        echo "📦 Activating virtual environment..."
         source venv/bin/activate
+
+        echo "🧩 Installing dependencies..."
         pip install -r requirements.txt
+
+        echo "🔐 Writing .env file from GitHub Secrets..."
 
         # Generate .env file dynamically from GitHub secrets
         cat > .env << EOL
@@ -42,5 +49,7 @@ jobs:
         EMAIL_DEFAULT_SENDER=${{ secrets.EMAIL_DEFAULT_SENDER }}
         EOL
 
+        echo "🌀 Restarting Flask service..."
+        sudo systemctl daemon-reload
         sudo systemctl restart myflask
         EOF
