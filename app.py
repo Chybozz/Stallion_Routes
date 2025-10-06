@@ -672,7 +672,7 @@ def rider_forgot_password():
 
                 # Store the token in the database
                 cursor.execute("""
-                    INSERT INTO password_reset (email, reset_token, expires_at)
+                    INSERT INTO password_reset (rider_email, reset_token, expires_at)
                     VALUES (%s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
                     ON DUPLICATE KEY UPDATE
                         reset_token = VALUES(reset_token),
