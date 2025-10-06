@@ -38,16 +38,16 @@ jobs:
 
         # Generate .env file dynamically from GitHub secrets
         cat > .env << EOL
-PAYSTACK_SECRET_KEY=${{ secrets.PAYSTACK_SECRET_KEY }}
-DB_HOST=${{ secrets.DB_HOST }}
-DB_USER=${{ secrets.DB_USER }}
-DB_PASS=${{ secrets.DB_PASSWORD }}
-DB_NAME=${{ secrets.DB_NAME }}
-EMAIL_USER=${{ secrets.EMAIL_USER }}
-EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
-EMAIL_HOST=${{ secrets.EMAIL_HOST }}
-EMAIL_DEFAULT_SENDER=${{ secrets.EMAIL_DEFAULT_SENDER }}
-EOL
+        PAYSTACK_SECRET_KEY=${{ secrets.PAYSTACK_SECRET_KEY }}
+        DB_HOST=${{ secrets.DB_HOST }}
+        DB_USER=${{ secrets.DB_USER }}
+        DB_PASS=${{ secrets.DB_PASSWORD }}
+        DB_NAME=${{ secrets.DB_NAME }}
+        EMAIL_USER=${{ secrets.EMAIL_USER }}
+        EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
+        EMAIL_HOST=${{ secrets.EMAIL_HOST }}
+        EMAIL_DEFAULT_SENDER=${{ secrets.EMAIL_DEFAULT_SENDER }}
+        EOL
 
         echo "🌀 Restarting Flask service..."
         sudo systemctl daemon-reload
