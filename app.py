@@ -307,6 +307,9 @@ def forgot_password():
                 cursor.execute("""
                     INSERT INTO password_reset (email, reset_token, expires_at)
                     VALUES (%s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
+                    ON DUPLICATE KEY UPDATE
+                        reset_token = VALUES(reset_token),
+                        expires_at = VALUES(expires_at)
                 """, (email, reset_token))
                 connection.commit()
 
@@ -671,6 +674,9 @@ def rider_forgot_password():
                 cursor.execute("""
                     INSERT INTO password_reset (email, reset_token, expires_at)
                     VALUES (%s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
+                    ON DUPLICATE KEY UPDATE
+                        reset_token = VALUES(reset_token),
+                        expires_at = VALUES(expires_at)
                 """, (rider_email, reset_token))
                 connection.commit()
 
