@@ -697,7 +697,7 @@ def rider_forgot_password():
         finally:
             cursor.close()
             connection.close()
-    return render_template('forgot_password.html')
+    return render_template('rider_forgot_password.html')
 
 
 #################### CUSTOMER REQUESTS BEGINS HERE #####################
