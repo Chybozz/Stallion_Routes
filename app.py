@@ -13,6 +13,7 @@ from collections import defaultdict
 from decimal import Decimal
 # import mysql.connector
 import smtplib
+import base64
 import requests
 import random
 import string
@@ -561,14 +562,86 @@ def rider_registration():
 
             # create verification link
             verification_link = f"{request.url_root}/verify_rider/{verification_token}"
-            body = f"Hi {rider_name},\n\nPlease complete your registration and verify your email address by clicking the link below:\n{verification_link}\nThis link will expire in 1 hour.\n\nThank you for accepting to be our rider, Stallion Routes!"
+            #body = f"Hi {rider_name},\n\nPlease complete your registration and verify your email address by clicking the link below:\n{verification_link}\nThis link will expire in 1 hour.\n\nThank you for accepting to be our rider, Stallion Routes!"
+            
+            # Load and encode the logo
+            with open("static/logo.png", "rb") as f:
+                logo_b64 = base64.b64encode(f.read()).decode('utf-8')
+
+            # Prepare HTML email content
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family: Arial, sans-serif; padding: 20px;">
+            <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="data:image/png;base64,{logo_b64}" alt="Stallion Routes Logo" style="height: 60px;" />
+                </div>
+
+                <h2 style="color: #2e86de;">Welcome to Stallion Routes, {rider_name}!</h2>
+                <p style="font-size: 15px; color: #333;">
+                Thank you for joining <strong>Stallion Routes</strong>. To complete your registration and activate your profile, please verify your email address by clicking the button below:
+                </p>
+
+                <p style="text-align: center; margin: 30px 0;">
+                <a href="{verification_link}" style="background-color: #2e86de; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                    Verify Email
+                </a>
+                </p>
+
+                <p style="font-size: 14px; color: #666;">This link will expire in <strong>1 hour</strong>.</p>
+
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
+
+                <h3 style="color: #333;">Please come along with:</h3>
+                <ul style="color: #555; font-size: 15px;">
+                <li>Original and photocopy of your NIN ID card or slip</li>
+                <li>Recommendation letter from your guarantor</li>
+                <li>Your highest educational qualification</li>
+                <li>A valid driving license (if available)</li>
+                </ul>
+
+                <p style="font-size: 15px; color: #333;">
+                <strong>Physical Verification Address:</strong><br>
+                Stallion Routes HQ,<br>
+                No 19, Nsugbe Street, Abakaliki,<br>
+                Ebonyi, Nigeria.
+                </p>
+
+                <p style="font-size: 14px; color: #999; margin-top: 30px;">
+                We look forward to seeing you soon!<br><br>
+                — The Stallion Routes Team
+                </p>
+
+                <!-- Social Links -->
+                <div style="text-align: center; margin-top: 40px;">
+                    <a href="https://facebook.com/stallionroutes" style="margin: 0 10px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="24" height="24" />
+                    </a>
+                    <a href="https://twitter.com/stallionroutes" style="margin: 0 10px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" width="24" height="24" />
+                    </a>
+                    <a href="https://instagram.com/stallionroutes" style="margin: 0 10px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="24" height="24" />
+                    </a>
+                </div>
+
+                <p style="text-align: center; font-size: 12px; color: #bbb; margin-top: 20px;">
+                    © {{ datetime.now().year }} Stallion Routes. All rights reserved.
+                </p>
+            </div>
+            </body>
+            </html>
+            """
 
             # Prepare the mail
             msg = EmailMessage()
             msg['Subject'] = 'Verify Your Email - Stallion Routes'
             msg['From'] = EMAIL_USER
             msg['To'] = rider_email
-            msg.set_content(body)
+            #msg.set_content(body)
+            msg.add_alternative(html_content, subtype='html')  # Use only HTML content
 
             # Send the email
             with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
