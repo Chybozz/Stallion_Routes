@@ -29,6 +29,8 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', secret_key) # Set a default s
 socketio = SocketIO(app, cors_allowed_origins="*") # Initialize SocketIO
 CORS(app)  # Enable CORS
 
+app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024  # 30 MB
+
 app = app  # For deployment with Gunicorn or other WSGI servers
 
 EMAIL_USER = os.getenv('EMAIL_USER')
@@ -568,6 +570,8 @@ def rider_registration():
             with open("static/logo.png", "rb") as f:
                 logo_b64 = base64.b64encode(f.read()).decode('utf-8')
 
+            current_year = datetime.now().year
+
             # Prepare HTML email content
             html_content = f"""
             <!DOCTYPE html>
@@ -628,7 +632,7 @@ def rider_registration():
                 </div>
 
                 <p style="text-align: center; font-size: 12px; color: #bbb; margin-top: 20px;">
-                    © {{ datetime.now().year }} Stallion Routes. All rights reserved.
+                    © { current_year } Stallion Routes. All rights reserved.
                 </p>
             </div>
             </body>
