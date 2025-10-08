@@ -567,7 +567,7 @@ def rider_registration():
             #body = f"Hi {rider_name},\n\nPlease complete your registration and verify your email address by clicking the link below:\n{verification_link}\nThis link will expire in 1 hour.\n\nThank you for accepting to be our rider, Stallion Routes!"
             
             # Load and encode the logo
-            with open("static/logo.png", "rb") as f:
+            with open("static/img/stallion_routes.png", "rb") as f:
                 logo_b64 = base64.b64encode(f.read()).decode('utf-8')
 
             current_year = datetime.now().year
@@ -620,13 +620,13 @@ def rider_registration():
 
                 <!-- Social Links -->
                 <div style="text-align: center; margin-top: 40px;">
-                    <a href="https://facebook.com/stallionroutes" style="margin: 0 10px;">
+                    <a href="https://www.facebook.com/share/1Ee5xb2moQ/" style="margin: 0 10px;">
                     <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="24" height="24" />
                     </a>
                     <a href="https://twitter.com/stallionroutes" style="margin: 0 10px;">
                     <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" width="24" height="24" />
                     </a>
-                    <a href="https://instagram.com/stallionroutes" style="margin: 0 10px;">
+                    <a href="https://www.instagram.com/stallionroutes?utm_source=qr&igsh=MWcybmx2d3J1cWttcQ==" style="margin: 0 10px;">
                     <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="24" height="24" />
                     </a>
                 </div>
