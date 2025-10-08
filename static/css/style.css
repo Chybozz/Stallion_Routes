@@ -631,4 +631,10 @@ footer {
         width: 30px;
         height: 30px;
     }
+
+    /* Back-to-Top Button */
+    #back-to-top {
+        bottom: 80px;
+        right: 20px;
+    }
 }
