@@ -106,14 +106,74 @@ def send_mail_to_rider():
             registration_link = f"{request.url_root}/rider_registration"
 
             # Prepare the email content
-            body = f"Hi {rider_name},\n\nYou have been invited to register as a rider for Stallion Routes. Please complete your registration by clicking the link below:\n{registration_link}\n\nThank you!"
+            # body = f"Hi {rider_name},\n\nYou have been invited to register as a rider for Stallion Routes. Please complete your registration by clicking the link below:\n{registration_link}\n\nThank you!"
+
+            current_year = datetime.now().year
+
+            # Prepare HTML email content
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family: Arial, sans-serif;">
+            <div style="width": 100%;>
+
+                <div style="margin-bottom: 20px;">
+                    <img src="https://stallionroutes.com/static/img/stallion_routes.png" alt="Stallion Routes Logo" style="height: 60px;" />
+                </div>
+
+                <h2 style="color: #2e86de;">Welcome to Stallion Routes</h2>
+                <p style="font-size: 15px; color: #333;">
+                    Hello, {rider_name}!
+                </p>
+                <p style="font-size: 15px; color: #333;">
+                You have been selected as the first step to becoming a rider for <strong>Stallion Routes</strong>. Please complete your registration by clicking the button below:
+                </p>
+
+                <p style="margin: 30px 0;">
+                <a href="{registration_link}" style="background-color: #2e86de; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                    Verify Email
+                </a>
+                </p>
+
+                <p style="font-size: 14px; color: #666;">This link will expire in <strong>1 hour</strong>.</p>
+
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
+
+                <p style="font-size: 14px; color: #999; margin-top: 30px;">
+                Report your issues or feedback to <a href="mailto:support@stallionroutes.com">support@stallionroutes.com</a>.<br>
+                Thank you for choosing Stallion Routes.<br>
+                We look forward to hearing from you!<br><br>
+                — The Stallion Routes Team
+                </p>
+
+                <!-- Social Links -->
+                <div style="margin-top: 40px;">
+                    <a href="https://www.facebook.com/share/1Ee5xb2moQ/" style="margin: 0 10px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="24" height="24" />
+                    </a>
+                    <a href="https://twitter.com/stallionroutes" style="margin: 0 10px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" width="24" height="24" />
+                    </a>
+                    <a href="https://www.instagram.com/stallionroutes?utm_source=qr&igsh=MWcybmx2d3J1cWttcQ==" style="margin: 0 10px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="24" height="24" />
+                    </a>
+                </div>
+
+                <p style="font-size: 12px; color: #bbb; margin-top: 20px;">
+                    © { current_year } Stallion Routes. All rights reserved.
+                </p>
+            </div>
+            </body>
+            </html>
+            """
             
             # Prepare the email
             msg = EmailMessage()
             msg['Subject'] = 'Rider Registration - Stallion Routes'
             msg['From'] = EMAIL_USER
             msg['To'] = rider_email
-            msg.set_content(body)
+            # msg.set_content(body)
+            msg.add_alternative(html_content, subtype='html')
 
             # Send the email
             with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
@@ -203,14 +263,74 @@ def signup():
 
             # Create the verification link
             verification_url = f"{request.url_root}/verify/{verification_token}"
-            body = f"Hi {full_name},\n\nPlease verify your email address by clicking the link below:\n{verification_url}\nThis link will expire in 1 hour.\n\nThank you for joining Stallion Routes!"
+            # body = f"Hi {full_name},\n\nPlease verify your email address by clicking the link below:\n{verification_url}\nThis link will expire in 1 hour.\n\nThank you for joining Stallion Routes!"
+
+            current_year = datetime.now().year
+
+            # Prepare HTML email content
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family: Arial, sans-serif;">
+            <div style="width": 100%;>
+
+                <div style="margin-bottom: 20px;">
+                    <img src="https://stallionroutes.com/static/img/stallion_routes.png" alt="Stallion Routes Logo" style="height: 60px;" />
+                </div>
+
+                <h2 style="color: #2e86de;">Welcome to Stallion Routes</h2>
+                <p style="font-size: 15px; color: #333;">
+                    Hello, {full_name}!
+                </p>
+                <p style="font-size: 15px; color: #333;">
+                Thank you for Patronizing <strong>Stallion Routes</strong>. To complete your registration and activate your profile, please verify your email address by clicking the button below:
+                </p>
+
+                <p style="margin: 30px 0;">
+                <a href="{verification_url}" style="background-color: #2e86de; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                    Verify Email
+                </a>
+                </p>
+
+                <p style="font-size: 14px; color: #666;">This link will expire in <strong>1 hour</strong>.</p>
+
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
+
+                <p style="font-size: 14px; color: #999; margin-top: 30px;">
+                Report your issues or feedback to <a href="mailto:support@stallionroutes.com">support@stallionroutes.com</a>.<br>
+                Thank you for choosing Stallion Routes.<br>
+                We look forward to serving you!<br><br>
+                — The Stallion Routes Team
+                </p>
+
+                <!-- Social Links -->
+                <div style="margin-top: 40px;">
+                    <a href="https://www.facebook.com/share/1Ee5xb2moQ/" style="margin: 0 10px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="24" height="24" />
+                    </a>
+                    <a href="https://twitter.com/stallionroutes" style="margin: 0 10px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" width="24" height="24" />
+                    </a>
+                    <a href="https://www.instagram.com/stallionroutes?utm_source=qr&igsh=MWcybmx2d3J1cWttcQ==" style="margin: 0 10px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="24" height="24" />
+                    </a>
+                </div>
+
+                <p style="font-size: 12px; color: #bbb; margin-top: 20px;">
+                    © { current_year } Stallion Routes. All rights reserved.
+                </p>
+            </div>
+            </body>
+            </html>
+            """
             
             # Prepare the email
             msg = EmailMessage()
             msg['Subject'] = 'Verify Your Email - Stallion Routes'
             msg['From'] = EMAIL_USER
             msg['To'] = email
-            msg.set_content(body)
+            # msg.set_content(body)
+            msg.add_alternative(html_content, subtype='html')
 
             # Send the email
             with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
@@ -266,14 +386,83 @@ def resend_verification():
 
                 # Create the verification link
                 verification_url = f"{request.url_root}/verify/{verification_token}"
-                body = f"Hi,\n\nPlease verify your email address by clicking the link below:\n{verification_url}\nThis link will expire in 1 hour.\n\nThank you!"
+                # body = f"Hi,\n\nPlease verify your email address by clicking the link below:\n{verification_url}\nThis link will expire in 1 hour.\n\nThank you!"
+
+                current_year = datetime.now().year
+
+                # Prepare HTML email content
+                html_content = f"""
+                <!DOCTYPE html>
+                <html>
+                <body style="font-family: Arial, sans-serif;">
+                <div style="width": 100%;>
+
+                    <div style="margin-bottom: 20px;">
+                        <img src="https://stallionroutes.com/static/img/stallion_routes.png" alt="Stallion Routes Logo" style="height: 60px;" />
+                    </div>
+
+                    <h2 style="color: #2e86de;">Verify Your Email Address</h2>
+
+                    <p style="font-size: 15px; color: #333;">
+                    Hello, {user['name']}!
+                    </p>
+
+                    <p style="font-size: 15px; color: #333;">
+                    Please verify your email address by clicking the link below:
+                    </p>
+
+                    <div style="margin: 30px 0;">
+                    <a href="{verification_url}" style="background-color: #2e86de; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        Verify Email
+                    </a>
+                    </div>
+
+                    <p style="font-size: 14px; color: #666;">
+                    If the button doesn't work, you can copy and paste the following link into your browser:<br>
+                    <a href="{verification_url}" style="color: #2e86de;">{verification_url}</a>
+                    </p>
+
+                    <p style="font-size: 14px; color: #666; margin-top: 20px;">
+                    <strong>Note:</strong> This verification link will expire in <strong>1 hour</strong> for your security.
+                    </p>
+
+                    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
+
+                    <p style="font-size: 14px; color: #999;">
+                    Report your issues or feedback to <a href="mailto:support@stallionroutes.com">support@stallionroutes.com</a>.<br>
+                    Thank you for choosing Stallion Routes.<br>
+                    We look forward to serving you!<br><br>
+                    — The Stallion Routes Team
+                    </p>
+
+                    <!-- Social Links -->
+                    <div style=" margin-top: 40px;">
+                        <a href="https://www.facebook.com/share/1Ee5xb2moQ/" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="24" height="24" />
+                        </a>
+                        <a href="https://twitter.com/stallionroutes" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" width="24" height="24" />
+                        </a>
+                        <a href="https://www.instagram.com/stallionroutes?utm_source=qr&igsh=MWcybmx2d3J1cWttcQ==" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="24" height="24" />
+                        </a>
+                    </div>
+
+                    <p style="font-size: 12px; color: #bbb; margin-top: 20px;">
+                        © { current_year } Stallion Routes. All rights reserved.
+                    </p>
+                </div>
+                </body>
+                </html>
+                """
                 
                 # Prepare the email
                 msg = EmailMessage()
                 msg['Subject'] = 'Resend Verification - Stallion Routes'
                 msg['From'] = EMAIL_USER
                 msg['To'] = email
-                msg.set_content(body)
+                # msg.set_content(body)
+                msg.add_alternative(html_content, subtype='html')
 
                 # Send the email
                 with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
@@ -318,12 +507,81 @@ def forgot_password():
 
                 # Send password reset email
                 reset_url = f"{request.url_root}/reset_password/{reset_token}"
+
+                current_year = datetime.now().year
+
+                # Prepare HTML email content
+                html_content = f"""
+                <!DOCTYPE html>
+                <html>
+                <body style="font-family: Arial, sans-serif;">
+                <div style="width": 100%;>
+
+                    <div style="margin-bottom: 20px;">
+                        <img src="https://stallionroutes.com/static/img/stallion_routes.png" alt="Stallion Routes Logo" style="height: 60px;" />
+                    </div>
+
+                    <h2 style="color: #2e86de;">Reset Your Password</h2>
+
+                    <p style="font-size: 15px; color: #333;">
+                    Hello, {user[1]}!
+                    </p>
+
+                    <p style="font-size: 15px; color: #333;">
+                    Please reset your password by clicking the link below:
+                    </p>
+
+                    <div style="margin: 30px 0;">
+                    <a href="{reset_url}" style="background-color: #2e86de; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        Reset Password
+                    </a>
+                    </div>
+
+                    <p style="font-size: 14px; color: #666;">
+                    If the button doesn't work, you can copy and paste the following link into your browser:<br>
+                    <a href="{reset_url}" style="color: #2e86de;">{reset_url}</a>
+                    </p>
+
+                    <p style="font-size: 14px; color: #666; margin-top: 20px;">
+                    <strong>Note:</strong> This verification link will expire in <strong>1 hour</strong> for your security.
+                    </p>
+
+                    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
+
+                    <p style="font-size: 14px; color: #999;">
+                    Report your issues or feedback to <a href="mailto:support@stallionroutes.com">support@stallionroutes.com</a>.<br>
+                    Thank you for choosing Stallion Routes.<br>
+                    We look forward to serving you!<br><br>
+                    — The Stallion Routes Team
+                    </p>
+
+                    <!-- Social Links -->
+                    <div style=" margin-top: 40px;">
+                        <a href="https://www.facebook.com/share/1Ee5xb2moQ/" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="24" height="24" />
+                        </a>
+                        <a href="https://twitter.com/stallionroutes" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" width="24" height="24" />
+                        </a>
+                        <a href="https://www.instagram.com/stallionroutes?utm_source=qr&igsh=MWcybmx2d3J1cWttcQ==" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="24" height="24" />
+                        </a>
+                    </div>
+
+                    <p style="font-size: 12px; color: #bbb; margin-top: 20px;">
+                        © { current_year } Stallion Routes. All rights reserved.
+                    </p>
+                </div>
+                </body>
+                </html>
+                """
                 
                 msg = EmailMessage()
                 msg['Subject'] = 'Password Reset Request - Stallion Routes'
                 msg['From'] = EMAIL_USER
                 msg['To'] = email
-                msg.set_content(f"Hi,\n\nTo reset your password, please click the link below:\n{reset_url}\nThis link will expire in 1 hour.\n\nThank you!")
+                # msg.set_content(f"Hi,\n\nTo reset your password, please click the link below:\n{reset_url}\nThis link will expire in 1 hour.\n\nThank you!")
+                msg.add_alternative(html_content, subtype='html')
 
                 with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
                     smtp.login(EMAIL_USER, EMAIL_PASSWORD)
@@ -567,8 +825,8 @@ def rider_registration():
             #body = f"Hi {rider_name},\n\nPlease complete your registration and verify your email address by clicking the link below:\n{verification_link}\nThis link will expire in 1 hour.\n\nThank you for accepting to be our rider, Stallion Routes!"
             
             # Load and encode the logo
-            with open("static/img/stallion_routes.png", "rb") as f:
-                logo_b64 = base64.b64encode(f.read()).decode('utf-8')
+            """ with open("static/img/stallion_routes.png", "rb") as f:
+                logo_b64 = base64.b64encode(f.read()).decode('utf-8') """
 
             current_year = datetime.now().year
 
@@ -576,19 +834,22 @@ def rider_registration():
             html_content = f"""
             <!DOCTYPE html>
             <html>
-            <body style="font-family: Arial, sans-serif; padding: 20px;">
-            <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+            <body style="font-family: Arial, sans-serif;">
+            <div style="width": 100%;>
 
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="data:image/png;base64,{logo_b64}" alt="Stallion Routes Logo" style="height: 60px;" />
+                <div style="margin-bottom: 20px;">
+                    <img src="https://stallionroutes.com/static/img/stallion_routes.png" alt="Stallion Routes Logo" style="height: 60px;" />
                 </div>
 
-                <h2 style="color: #2e86de;">Welcome to Stallion Routes, {rider_name}!</h2>
+                <h2 style="color: #2e86de;">Welcome to Stallion Routes</h2>
+                <p style="font-size: 15px; color: #333;">
+                    Hello, {rider_name}!
+                </p>
                 <p style="font-size: 15px; color: #333;">
                 Thank you for joining <strong>Stallion Routes</strong>. To complete your registration and activate your profile, please verify your email address by clicking the button below:
                 </p>
 
-                <p style="text-align: center; margin: 30px 0;">
+                <p style="margin: 30px 0;">
                 <a href="{verification_link}" style="background-color: #2e86de; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
                     Verify Email
                 </a>
@@ -602,8 +863,8 @@ def rider_registration():
                 <ul style="color: #555; font-size: 15px;">
                 <li>Original and photocopy of your NIN ID card or slip</li>
                 <li>Recommendation letter from your guarantor</li>
-                <li>Your highest educational qualification</li>
-                <li>A valid driving license (if available)</li>
+                <li>Original and photocopy of your highest educational qualification</li>
+                <li>Original and photocopy of your valid driving license (if available)</li>
                 </ul>
 
                 <p style="font-size: 15px; color: #333;">
@@ -614,12 +875,14 @@ def rider_registration():
                 </p>
 
                 <p style="font-size: 14px; color: #999; margin-top: 30px;">
+                Report your issues or feedback to <a href="mailto:support@stallionroutes.com">support@stallionroutes.com</a>.<br>
+                Thank you for choosing Stallion Routes.<br>
                 We look forward to seeing you soon!<br><br>
                 — The Stallion Routes Team
                 </p>
 
                 <!-- Social Links -->
-                <div style="text-align: center; margin-top: 40px;">
+                <div style="margin-top: 40px;">
                     <a href="https://www.facebook.com/share/1Ee5xb2moQ/" style="margin: 0 10px;">
                     <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="24" height="24" />
                     </a>
@@ -631,7 +894,7 @@ def rider_registration():
                     </a>
                 </div>
 
-                <p style="text-align: center; font-size: 12px; color: #bbb; margin-top: 20px;">
+                <p style="font-size: 12px; color: #bbb; margin-top: 20px;">
                     © { current_year } Stallion Routes. All rights reserved.
                 </p>
             </div>
@@ -699,21 +962,89 @@ def resend_rider_verification():
             cursor.execute("SELECT * FROM riders WHERE rider_email = %s", (email,))
             rider = cursor.fetchone()
 
-            if rider and not rider['is_verified']:  # Check if the user is not verified
+            if rider and not rider['is_verified']:  # Check if the rider is not verified
                 verification_token = str(uuid.uuid4())
                 cursor.execute("UPDATE riders SET verification_token = %s, expires_at = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE rider_email = %s", (verification_token, email))
                 connection.commit()
 
                 # Create the verification link
                 verification_url = f"{request.url_root}/verify_rider/{verification_token}"
-                body = f"Hi,\n\nPlease verify your email address by clicking the link below:\n{verification_url}\nThis link will expire in 1 hour.\n\nThank you!"
+                # body = f"Hi,\n\nPlease verify your email address by clicking the link below:\n{verification_url}\nThis link will expire in 1 hour.\n\nThank you!"
                 
+                current_year = datetime.now().year
+
+                # Prepare HTML email content
+                html_content = f"""
+                <!DOCTYPE html>
+                <html>
+                <body style="font-family: Arial, sans-serif;">
+                <div style="width": 100%;>
+
+                    <div style="margin-bottom: 20px;">
+                        <img src="https://stallionroutes.com/static/img/stallion_routes.png" alt="Stallion Routes Logo" style="height: 60px;" />
+                    </div>
+
+                    <h2 style="color: #2e86de;">Verify Your Email Address</h2>
+
+                    <p style="font-size: 15px; color: #333;">
+                    Hello, {rider['rider_name']}!
+                    </p>
+
+                    <p style="font-size: 15px; color: #333;">
+                    Please verify your email address by clicking the link below:
+                    </p>
+
+                    <div style="margin: 30px 0;">
+                    <a href="{verification_url}" style="background-color: #2e86de; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        Verify Email
+                    </a>
+                    </div>
+
+                    <p style="font-size: 14px; color: #666;">
+                    If the button doesn't work, you can copy and paste the following link into your browser:<br>
+                    <a href="{verification_url}" style="color: #2e86de;">{verification_url}</a>
+                    </p>
+
+                    <p style="font-size: 14px; color: #666; margin-top: 20px;">
+                    <strong>Note:</strong> This verification link will expire in <strong>1 hour</strong> for your security.
+                    </p>
+
+                    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
+
+                    <p style="font-size: 14px; color: #999;">
+                    Report your issues or feedback to <a href="mailto:support@stallionroutes.com">support@stallionroutes.com</a>.<br>
+                    Thank you for choosing Stallion Routes.<br><br>
+                    — The Stallion Routes Team
+                    </p>
+
+                    <!-- Social Links -->
+                    <div style=" margin-top: 40px;">
+                        <a href="https://www.facebook.com/share/1Ee5xb2moQ/" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="24" height="24" />
+                        </a>
+                        <a href="https://twitter.com/stallionroutes" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" width="24" height="24" />
+                        </a>
+                        <a href="https://www.instagram.com/stallionroutes?utm_source=qr&igsh=MWcybmx2d3J1cWttcQ==" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="24" height="24" />
+                        </a>
+                    </div>
+
+                    <p style="font-size: 12px; color: #bbb; margin-top: 20px;">
+                        © { current_year } Stallion Routes. All rights reserved.
+                    </p>
+                </div>
+                </body>
+                </html>
+                """
+
                 # Prepare the email
                 msg = EmailMessage()
                 msg['Subject'] = 'Resend Verification - Stallion Routes'
                 msg['From'] = EMAIL_USER
                 msg['To'] = email
-                msg.set_content(body)
+                # msg.set_content(body)
+                msg.add_alternative(html_content, subtype='html')
 
                 # Send the email
                 with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
@@ -761,12 +1092,80 @@ def rider_forgot_password():
 
                 # Send password reset email
                 reset_url = f"{request.url_root}/reset_password/{reset_token}"
+
+                current_year = datetime.now().year
+
+                # Prepare HTML email content
+                html_content = f"""
+                <!DOCTYPE html>
+                <html>
+                <body style="font-family: Arial, sans-serif;">
+                <div style="width": 100%;>
+
+                    <div style="margin-bottom: 20px;">
+                        <img src="https://stallionroutes.com/static/img/stallion_routes.png" alt="Stallion Routes Logo" style="height: 60px;" />
+                    </div>
+
+                    <h2 style="color: #2e86de;">Reset Your Password</h2>
+
+                    <p style="font-size: 15px; color: #333;">
+                    Hello, {rider[1]}!
+                    </p>
+
+                    <p style="font-size: 15px; color: #333;">
+                    Please reset your password by clicking the link below:
+                    </p>
+
+                    <div style="margin: 30px 0;">
+                    <a href="{reset_url}" style="background-color: #2e86de; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        Reset Password
+                    </a>
+                    </div>
+
+                    <p style="font-size: 14px; color: #666;">
+                    If the button doesn't work, you can copy and paste the following link into your browser:<br>
+                    <a href="{reset_url}" style="color: #2e86de;">{reset_url}</a>
+                    </p>
+
+                    <p style="font-size: 14px; color: #666; margin-top: 20px;">
+                    <strong>Note:</strong> This verification link will expire in <strong>1 hour</strong> for your security.
+                    </p>
+
+                    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
+
+                    <p style="font-size: 14px; color: #999;">
+                    Report your issues or feedback to <a href="mailto:support@stallionroutes.com">support@stallionroutes.com</a>.<br>
+                    Thank you for choosing Stallion Routes.<br><br>
+                    — The Stallion Routes Team
+                    </p>
+
+                    <!-- Social Links -->
+                    <div style=" margin-top: 40px;">
+                        <a href="https://www.facebook.com/share/1Ee5xb2moQ/" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="24" height="24" />
+                        </a>
+                        <a href="https://twitter.com/stallionroutes" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" width="24" height="24" />
+                        </a>
+                        <a href="https://www.instagram.com/stallionroutes?utm_source=qr&igsh=MWcybmx2d3J1cWttcQ==" style="margin: 0 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="24" height="24" />
+                        </a>
+                    </div>
+
+                    <p style="font-size: 12px; color: #bbb; margin-top: 20px;">
+                        © { current_year } Stallion Routes. All rights reserved.
+                    </p>
+                </div>
+                </body>
+                </html>
+                """
                 
                 msg = EmailMessage()
                 msg['Subject'] = 'Password Reset Request - Stallion Routes'
                 msg['From'] = EMAIL_USER
                 msg['To'] = rider_email
-                msg.set_content(f"Hi,\n\nTo reset your password, please click the link below:\n{reset_url}\nThis link will expire in 1 hour.\n\nThank you!")
+                # msg.set_content(f"Hi,\n\nTo reset your password, please click the link below:\n{reset_url}\nThis link will expire in 1 hour.\n\nThank you!")
+                msg.add_alternative(html_content, subtype='html')  # Use only HTML content
 
                 with smtplib.SMTP_SSL(EMAIL_HOST, 465) as smtp:
                     smtp.login(EMAIL_USER, EMAIL_PASSWORD)
