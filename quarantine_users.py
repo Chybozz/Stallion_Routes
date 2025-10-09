@@ -207,7 +207,7 @@ def main():
     logging.info("=== Quarantine job started ===")
 
     # Connect DB
-    conn = mysql.connector.connect(**get_db_connection())
+    conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     try:
