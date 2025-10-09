@@ -13,7 +13,7 @@ from collections import defaultdict
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from redis import Redis
-from flask_login import LoginManager, current_user
+# from flask_login import LoginManager, current_user
 from decimal import Decimal
 # import mysql.connector
 import smtplib
@@ -44,7 +44,6 @@ limiter = Limiter(
     storage_uri="redis://localhost:6379",
     default_limits=["200 per day", "50 per hour"]
 )
-login_manager = LoginManager(app)
 app = app  # For deployment with Gunicorn or other WSGI servers
 
 EMAIL_USER = os.getenv('EMAIL_USER')
@@ -94,7 +93,7 @@ def generate_request_id():
 
 @app.errorhandler(429)
 def ratelimit_handler(e):
-    return jsonify(error="Too many requests, Suspicious activity detected."), 429
+    return render_template("429.html"), 429
 
 @app.route('/')
 def index():
@@ -212,7 +211,7 @@ def logout():
 
 
 ####################### CUSTOMER LOGIN DETAILS ########################
-@limiter.limit("5 per minute", exempt_when=lambda: current_user.is_authenticated)
+@limiter.limit("5 per minute", exempt_when=lambda: 'user_id' in session)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -253,7 +252,7 @@ def login():
             return redirect(url_for('login'))
     return render_template('login.html')
 
-@limiter.limit("5 per minute", exempt_when=lambda: current_user.is_authenticated)
+@limiter.limit("5 per minute", exempt_when=lambda: 'user_id' in session)
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
