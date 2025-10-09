@@ -9,6 +9,7 @@ quarantine_users.py
 """
 
 import re
+import os
 import csv
 import math
 import ssl
@@ -23,19 +24,19 @@ from config import get_db_connection
 # =========================
 # CONFIG - EDIT BEFORE RUN
 # =========================
-DB_CONFIG = {
+""" DB_CONFIG = {
     "host": "localhost",            # or RDS endpoint
     "user": "your_mysql_user",
     "password": "your_mysql_password",
     "database": "your_database_name",
     "port": 3306
-}
+} """
 
-SMTP_SERVER = "smtp.zoho.com"
-SMTP_PORT = 587      # STARTTLS
-SMTP_USER = "info@stallionroutes.com"
-SMTP_PASS = "your_zoho_app_password"   # use app-specific password
-ADMIN_EMAIL = "info@stallionroutes.com"
+SMTP_SERVER = os.getenv('EMAIL_HOST')
+SMTP_PORT = 486      # STARTSSL
+SMTP_USER = os.getenv('EMAIL_USER')
+SMTP_PASS = os.getenv('EMAIL_PASSWORD')   # use app-specific password
+ADMIN_EMAIL = os.getenv('EMAIL_USER')
 
 # File paths - ensure these directories exist and are writable by the user that runs script
 REPORT_DIR = "/var/www/stallionroutes/reports"
