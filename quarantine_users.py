@@ -40,7 +40,8 @@ ADMIN_EMAIL = os.getenv('EMAIL_USER')
 
 # File paths - ensure these directories exist and are writable by the user that runs script
 REPORT_DIR = "/var/www/stallionroutes/reports"
-LOG_FILE = "/var/log/quarantine_activity.log"
+# LOG_FILE = "/var/log/quarantine_activity.log"
+LOG_FILE = "/home/ubuntu/Stallion_Routes/quarantine_activity.log"
 
 # Detection thresholds
 ENTROPY_THRESHOLD = 4.0     # above this is likely gibberish
