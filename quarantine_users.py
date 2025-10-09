@@ -255,9 +255,11 @@ def main():
             reason = next((r["reason"] for r in suspicious_rows_for_csv if r["id"] == uid), "suspicious")
             insert_sql = """
                 INSERT INTO users_quarantine 
-                SELECT u.*, %s AS reason FROM users u WHERE u.id = %s;
+                SELECT u.*, %s AS reason, NOW() AS quarantined_at
+                FROM users u WHERE u.id = %s;
             """
             cursor.execute(insert_sql, (reason, uid))
+
             # Now delete from users
             cursor.execute("DELETE FROM users WHERE id = %s;", (uid,))
             quarantined_ids.append(uid)
