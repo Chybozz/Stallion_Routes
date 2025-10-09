@@ -42,7 +42,7 @@ limiter = Limiter(
     get_remote_address,
     app=app,
     storage_uri="redis://localhost:6379",
-    default_limits=["200 per day", "50 per hour"]
+    # default_limits=["200 per day", "50 per hour"]
 )
 app = app  # For deployment with Gunicorn or other WSGI servers
 
