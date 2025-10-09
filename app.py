@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 from collections import defaultdict
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from redis import Redis
+from flask_login import LoginManager, current_user
 from decimal import Decimal
 # import mysql.connector
 import smtplib
@@ -33,11 +35,16 @@ CORS(app)  # Enable CORS
 
 app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024  # 30 MB
 
+# Initialize Redis connection
+redis_connection = Redis(host="localhost", port=6379, db=0)
+
 limiter = Limiter(
     get_remote_address,
     app=app,
+    storage_uri="redis://localhost:6379",
     default_limits=["200 per day", "50 per hour"]
 )
+login_manager = LoginManager(app)
 app = app  # For deployment with Gunicorn or other WSGI servers
 
 EMAIL_USER = os.getenv('EMAIL_USER')
@@ -205,8 +212,8 @@ def logout():
 
 
 ####################### CUSTOMER LOGIN DETAILS ########################
+@limiter.limit("5 per minute", exempt_when=lambda: current_user.is_authenticated)
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
 def login():
     if request.method == 'POST':
         email = request.form['email']
@@ -246,8 +253,8 @@ def login():
             return redirect(url_for('login'))
     return render_template('login.html')
 
+@limiter.limit("5 per minute", exempt_when=lambda: current_user.is_authenticated)
 @app.route('/signup', methods=['GET', 'POST'])
-@limiter.limit("3 per minute")
 def signup():
     if request.method == 'POST':
         ip_address = request.remote_addr
