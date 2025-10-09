@@ -250,7 +250,14 @@ def main():
         # Insert full rows into users_quarantine using INSERT ... SELECT to preserve all columns
         # For each id, insert and delete inside a loop to avoid transaction/pk conflicts
         quarantined_ids = []
+        blocked_ips = []
+
         for uid in suspicious_ids:
+            # 1️⃣ Get IP before deleting user
+            cursor.execute("SELECT ip_address FROM users WHERE id = %s;", (uid,))
+            ip_row = cursor.fetchone()
+            user_ip = ip_row["ip_address"] if ip_row and ip_row["ip_address"] else None
+
             # Insert full row + reason
             reason = next((r["reason"] for r in suspicious_rows_for_csv if r["id"] == uid), "suspicious")
             insert_sql = """
@@ -264,8 +271,23 @@ def main():
             cursor.execute("DELETE FROM users WHERE id = %s;", (uid,))
             quarantined_ids.append(uid)
 
+            # 4️⃣ If IP exists, add to blocked_ips table (ignore duplicates)
+            if user_ip:
+                try:
+                    cursor.execute("""
+                        INSERT IGNORE INTO blocked_ips (ip_address, reason)
+                        VALUES (%s, %s);
+                    """, (user_ip, f"Auto-blocked by quarantine script ({reason})"))
+                    blocked_ips.append(user_ip)
+                except Exception as e:
+                    logging.warning(f"Could not insert IP {user_ip} into blocked_ips: {e}")
+
         conn.commit()
         logging.info(f"Moved {len(quarantined_ids)} rows to users_quarantine and deleted them from users.")
+        if blocked_ips:
+            logging.info(f"Blocked {len(blocked_ips)} IPs: {blocked_ips}")
+
+        console_logger.info(f"[✓] Quarantined {len(quarantined_ids)} users. Blocked {len(blocked_ips)} IPs.")
 
         # Export CSV for the quarantined rows in this run
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

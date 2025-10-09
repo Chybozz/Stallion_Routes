@@ -10,6 +10,8 @@ from mysql.connector import Error  # Add this import
 from datetime import datetime
 from dotenv import load_dotenv
 from collections import defaultdict
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from decimal import Decimal
 # import mysql.connector
 import smtplib
@@ -31,6 +33,11 @@ CORS(app)  # Enable CORS
 
 app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024  # 30 MB
 
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"]
+)
 app = app  # For deployment with Gunicorn or other WSGI servers
 
 EMAIL_USER = os.getenv('EMAIL_USER')
@@ -77,6 +84,10 @@ def generate_request_id():
             cursor.close()
             connection.close()
             return request_id
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify(error="Too many requests, Suspicious activity detected."), 429
 
 @app.route('/')
 def index():
@@ -195,6 +206,7 @@ def logout():
 
 ####################### CUSTOMER LOGIN DETAILS ########################
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
 def login():
     if request.method == 'POST':
         email = request.form['email']
@@ -202,6 +214,16 @@ def login():
 
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
+
+        # Get user IP address
+        user_ip = request.remote_addr
+        # --- Check if IP is blocked ---
+        cursor.execute("SELECT * FROM blocked_ips WHERE ip_address = %s", (user_ip,))
+        blocked = cursor.fetchone()
+        if blocked:
+            flash("Your IP address has been blocked due to suspicious activity.", "danger")
+            return redirect(url_for('login'))
+        # --- End IP block check ---
 
         sqlInsert = "SELECT * FROM users WHERE email = %s"
         cursor.execute(sqlInsert, (email,))
@@ -225,13 +247,32 @@ def login():
     return render_template('login.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
+@limiter.limit("3 per minute")
 def signup():
     if request.method == 'POST':
+        ip_address = request.remote_addr
         full_name = request.form['name']
         email = request.form['email']
         phone = request.form['phone']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
+        recaptcha_token = request.form.get('recaptcha_token')
+
+        # Verify reCAPTCHA
+        # --- reCAPTCHA verification ---
+        secret_key = os.getenv('RECAPTCHA_SECRET_KEY')
+        if not secret_key:
+            flash("reCAPTCHA not configured.", "danger")
+            return redirect(url_for('signup'))
+
+        response = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={'secret': secret_key, 'response': recaptcha_token}
+        ).json()
+
+        if not response.get('success') or response.get('score', 0) < 0.5:
+            flash("reCAPTCHA verification failed. Please try again.", "danger")
+            return redirect(url_for('signup'))
 
         if password != confirm_password:
             flash('Passwords do not match', 'danger')
@@ -246,6 +287,14 @@ def signup():
         cursor = connection.cursor()
 
         try:
+            # --- Check if IP is blocked ---
+            cursor.execute("SELECT * FROM blocked_ips WHERE ip_address = %s", (ip_address,))
+            blocked = cursor.fetchone()
+            if blocked:
+                flash("Signup blocked. Suspicious activity detected.", "danger")
+                return redirect(url_for('signup'))
+            # --- End IP block check ---
+
             # Check if the email already exists
             cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
             existing_user = cursor.fetchone()
@@ -256,9 +305,9 @@ def signup():
 
             # Insert user with unverified status
             cursor.execute("""
-                INSERT INTO users (name, email, phone, password, verification_token, is_verified, expires_at)
-                VALUES (%s, %s, %s, %s, %s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
-            """, (full_name, email, phone, password_hash, verification_token, False))
+                INSERT INTO users (name, email, phone, password, verification_token, is_verified, expires_at, ip_address)
+                VALUES (%s, %s, %s, %s, %s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR), %s)
+            """, (full_name, email, phone, password_hash, verification_token, False, ip_address))
             connection.commit()
 
             # Create the verification link
@@ -344,7 +393,9 @@ def signup():
         finally:
             cursor.close()
             connection.close()
-    return render_template('signup.html')
+
+    site_key = os.getenv('RECAPTCHA_SITE_KEY')
+    return render_template('signup.html', site_key=site_key)
 
 @app.route('/verify/<token>')
 def verify_email(token):
