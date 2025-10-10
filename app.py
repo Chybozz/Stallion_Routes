@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify
+from email_validator import validate_email, EmailNotValidError
 from werkzeug.utils import secure_filename
 from email.message import EmailMessage
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -16,6 +17,7 @@ from redis import Redis
 # from flask_login import LoginManager, current_user
 from decimal import Decimal
 # import mysql.connector
+import bleach
 import smtplib
 import base64
 import requests
@@ -24,6 +26,7 @@ import string
 import secrets
 import os
 import uuid
+import re
 
 load_dotenv()  # Load the .env file
 
@@ -280,9 +283,35 @@ def signup():
             flash("reCAPTCHA verification failed. Please try again.", "danger")
             return redirect(url_for('signup'))
 
-        if password != confirm_password:
-            flash('Passwords do not match', 'danger')
+        # --- End reCAPTCHA verification ---
+
+        # Input validation
+        if not re.match(r"^[A-Za-z\s\-\']{2,50}$", full_name):
+            flash("Full name must contain only letters, spaces, hyphens, or apostrophes.", "danger")
             return redirect(url_for('signup'))
+
+        try:
+            valid_email = validate_email(email)
+            email = valid_email.email  # Normalized
+        except EmailNotValidError:
+            flash("Invalid email address.", "danger")
+            return redirect(url_for('signup'))
+
+        if not re.match(r"^\+?\d{10,15}$", phone):
+            flash("Invalid phone number. Use international format, e.g., +234...", "danger")
+            return redirect(url_for('signup'))
+
+        if len(password) < 8 or not re.search(r"[A-Z]", password) or not re.search(r"\d", password) or not re.search(r"[!@#$%^&*]", password):
+            flash("Password must be at least 8 characters long and include an uppercase letter, number, and special character.", "danger")
+            return redirect(url_for('signup'))
+
+        if password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return redirect(url_for('signup'))
+
+        # Sanitize inputs
+        full_name = bleach.clean(full_name)
+        phone = bleach.clean(phone)
         
         # Hash the password
         password_hash = generate_password_hash(password)
@@ -1249,6 +1278,18 @@ def request_delivery():
             session['request_id'] = request_id
             delivery_type = request.form['delivery_type']
 
+            connection = get_db_connection()
+            cursor = connection.cursor(dictionary=True)
+            customer_id = session.get('user_id')
+
+            cursor.execute("SELECT is_verified FROM users WHERE id = %s", (customer_id,))
+            user = cursor.fetchone()
+            cursor.close()
+            connection.close()
+
+            if not user or not user['is_verified']:
+                return jsonify({'error': 'Your account is not verified. Please check your email or go to the settings tab and verify your account before placing an order.', 'status': 'danger'}), 403
+
             if delivery_type == 'waybill':
                 waybillpackDesc = request.form.get('waybillpackDesc')
                 waybilldeliveryaddress = request.form.get('waybilldeliveryaddress')
@@ -1708,6 +1749,34 @@ def customer_settings():
     return render_template('customer_settings.html', customer_id=customer_id, customer_name=customer_name, customer_email=customer_email, 
                            customer_phone=customer_phone, current_date=current_date, current_time=current_time, account_verified=account_verified)
 
+# @app.route('/customer_history')
+# def customer_history():
+#     if 'user_id' not in session:
+#         flash('Please log in to continue.', 'danger')
+#         return redirect(url_for('login'))
+
+#     customer_id = session.get('user_id')
+#     current_date = datetime.now().strftime('%Y-%m-%d')
+#     current_time = datetime.now().strftime('%H:%M:%S')
+
+#     connection = get_db_connection()
+#     cursor = connection.cursor(dictionary=True)
+#     cursor.execute("""
+#         SELECT dr.request_id, dr.type, dr.package_desc, dr.delivery_address, dr.date_requested, dr.time_requested,
+#                tr.amount, tr.status, tr.rider_name, tr.rider_number, tr.transaction_date, tr.time_delivered
+#         FROM delivery_requests dr
+#         LEFT JOIN transactions tr ON dr.request_id = tr.request_id
+#         WHERE dr.customer_id = %s
+#         ORDER BY dr.date_requested DESC, dr.time_requested DESC
+#     """, (customer_id,))
+#     transaction_history = cursor.fetchall()
+#     cursor.close()
+#     connection.close()
+
+#     return render_template('customer_transaction_history.html',
+#                            transaction_history=transaction_history,
+#                            current_date=current_date,
+#                            current_time=current_time)
 
 ######################### RIDERS START HERE ############################
 @app.route('/rider_dashboard', methods=['GET', 'POST'])

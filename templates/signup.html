@@ -36,23 +36,23 @@
                     <form method="POST" action="{{ url_for('signup') }}">
                         <div class="form-group mb-3">
                             <label for="name" class="form-label"><i class="bi bi-person-fill"></i> Name:</label>
-                            <input type="text" class="form-control border-0 border-bottom border-black shadow-none" id="name" name="name" placeholder="enter name" required>
+                            <input type="text" class="form-control border-0 border-bottom border-black shadow-none" id="name" name="name" placeholder="Enter Name" pattern="^[A-Za-z\s\-']{2,50}$" title="Only letters and spaces allowed." required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="email" class="form-label"><i class="bi bi-envelope-fill"></i> Email:</label>
-                            <input type="email" class="form-control border-0 border-bottom border-black shadow-none" id="email" name="email" placeholder="enter email" required>
+                            <input type="email" class="form-control border-0 border-bottom border-black shadow-none" id="email" name="email" placeholder="Enter Email" required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="phone" class="form-label"><i class="bi bi-telephone-fill"></i> Phone:</label>
-                            <input type="text" class="form-control border-0 border-bottom border-black shadow-none" id="phone" name="phone" placeholder="enter number" required>
+                            <input type="text" class="form-control border-0 border-bottom border-black shadow-none" id="phone" name="phone" placeholder="Phone Number (e.g. 09012345678)" pattern="^0\d{10}$" title="Phone number must start with 0 and be 11 digits long (e.g. 09012345678)" required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="password" class="form-label"><i class="bi bi-lock-fill"></i> Password:</label>
-                            <input type="password" class="form-control border-0 border-bottom border-black shadow-none" id="password" name="password" placeholder="enter password" required>
+                            <input type="password" class="form-control border-0 border-bottom border-black shadow-none" id="password" name="password" placeholder="Enter Password" minlength="8" required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="confirm_password" class="form-label"><i class="bi bi-lock-fill"></i> Confirm Password:</label>
-                            <input type="password" class="form-control border-0 border-bottom border-black shadow-none" id="confirm_password" name="confirm_password" placeholder="confirm password" required>
+                            <input type="password" class="form-control border-0 border-bottom border-black shadow-none" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
                         </div>
 
                         <!-- Hidden field for reCAPTCHA token -->
@@ -79,4 +79,47 @@
         </div>
     </div>
 </div>
+
+<script>
+  document.getElementById('signup-form').addEventListener('submit', function(e) {
+    const form = e.target;
+
+    const name = form.name.value.trim();
+    const email = form.email.value.trim();
+    const phone = form.phone.value.trim();
+    const password = form.password.value;
+    const confirmPassword = form.confirm_password.value;
+
+    const nameRegex = /^[A-Za-z\s\-']{2,50}$/;
+    const phoneRegex = /^\+?\d{10,15}$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+
+    if (!nameRegex.test(name)) {
+      alert("Name must contain only letters, spaces, hyphens, or apostrophes.");
+      e.preventDefault();
+      return;
+    }
+
+    if (!phoneRegex.test(phone)) {
+      alert("Phone number must be valid and in international format.");
+      e.preventDefault();
+      return;
+    }
+
+    if (!passwordRegex.test(password)) {
+      alert("Password must be at least 8 characters long, include an uppercase letter, a number, and a special character.");
+      e.preventDefault();
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      e.preventDefault();
+      return;
+    }
+
+    // Optional: Add a loading spinner here
+  });
+</script>
+
 {% endblock %}
