@@ -537,10 +537,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/sendmail" method="POST">
+                    <form action="/sendmail" method="POST" id="sendmail-form">
                         <div class="mb-2">
                             <label for="name" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" pattern="^[A-Za-z\s\-']{2,50}$" title="Only letters and spaces allowed." required>
                         </div>
                         <div class="mb-2">
                             <label for="email" class="form-label">Email address</label>
@@ -572,6 +572,23 @@
                 backToTopButton.style.display = "none";
             }
         };
+    </script>
+
+    <script>
+        document.getElementById('sendmail-form').addEventListener('submit', function(e) {
+            const form = e.target;
+
+            const name = form.name.value.trim();
+            const email = form.email.value.trim();
+
+            const nameRegex = /^[A-Za-z\s\-']{2,50}$/;
+
+            if (!nameRegex.test(name)) {
+            alert("Name must contain only letters, spaces, hyphens, or apostrophes.");
+            e.preventDefault();
+            return;
+            }
+        });
     </script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

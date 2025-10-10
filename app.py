@@ -116,6 +116,21 @@ def send_mail_to_rider():
         rider_email = request.form.get('email')
         rider_name = request.form.get('name')
 
+        # Input validation
+        if not re.match(r"^[A-Za-z\s\-\']{2,50}$", rider_name):
+            flash("Full name must contain only letters, spaces, hyphens, or apostrophes.", "danger")
+            return redirect(url_for('signup'))
+
+        try:
+            valid_email = validate_email(rider_email)
+            rider_email = valid_email.email  # Normalized
+        except EmailNotValidError:
+            flash("Invalid email address.", "danger")
+            return redirect(url_for('signup'))
+
+        # Sanitize inputs
+        rider_name = bleach.clean(rider_name)
+
         if not rider_email or not rider_name:
             # If email or name is not provided, flash an error message and redirect
             flash('Rider email and name are required!', 'danger')

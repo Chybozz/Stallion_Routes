@@ -45,11 +45,11 @@
             <div class="dashboard-container lh-lg">
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="text-start m-0">Customer - Transaction History</h6>
-                    <h6 class="m-0 text-end">Total Transactions: {{ transaction_history|length }}</h6>
                     <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-stallion mb-3 text-end">
                         <i class="bi-arrow-return-left"></i> Back to DashBoard
                     </a>
                 </div>
+                <h6 class="m-0 text-end">Total Transactions: {{ transaction_history|length }}</h6>
                 
                 <!-- Display flash messages -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -99,9 +99,6 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <p id="total-transactions" hidden>Total Transactions: {{ transaction_history|length }}</p>
-                    </div>
                 </div>
             </div>
         </div>
