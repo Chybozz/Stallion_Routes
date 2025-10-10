@@ -1749,34 +1749,37 @@ def customer_settings():
     return render_template('customer_settings.html', customer_id=customer_id, customer_name=customer_name, customer_email=customer_email, 
                            customer_phone=customer_phone, current_date=current_date, current_time=current_time, account_verified=account_verified)
 
-# @app.route('/customer_history')
-# def customer_history():
-#     if 'user_id' not in session:
-#         flash('Please log in to continue.', 'danger')
-#         return redirect(url_for('login'))
+@app.route('/customer_history')
+def customer_history():
+    if 'user_id' not in session:
+        flash('Please log in to continue.', 'danger')
+        return redirect(url_for('login'))
 
-#     customer_id = session.get('user_id')
-#     current_date = datetime.now().strftime('%Y-%m-%d')
-#     current_time = datetime.now().strftime('%H:%M:%S')
+    customer_id = session.get('user_id')
+    customer_name = session.get('full_name')
+    customer_email = session.get('email')
+    customer_phone = session.get('phone')
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    current_time = datetime.now().strftime('%H:%M:%S')
 
-#     connection = get_db_connection()
-#     cursor = connection.cursor(dictionary=True)
-#     cursor.execute("""
-#         SELECT dr.request_id, dr.type, dr.package_desc, dr.delivery_address, dr.date_requested, dr.time_requested,
-#                tr.amount, tr.status, tr.rider_name, tr.rider_number, tr.transaction_date, tr.time_delivered
-#         FROM delivery_requests dr
-#         LEFT JOIN transactions tr ON dr.request_id = tr.request_id
-#         WHERE dr.customer_id = %s
-#         ORDER BY dr.date_requested DESC, dr.time_requested DESC
-#     """, (customer_id,))
-#     transaction_history = cursor.fetchall()
-#     cursor.close()
-#     connection.close()
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT dr.request_id, dr.type, dr.package_desc, dr.date_requested, dr.time_requested,
+               dr.status, tr.time_delivered
+        FROM delivery_requests dr
+        LEFT JOIN transactions tr ON dr.request_id = tr.request_id
+        WHERE dr.customer_id = %s
+        ORDER BY dr.date_requested DESC, dr.time_requested DESC
+    """, (customer_id,))
+    transaction_history = cursor.fetchall()
+    cursor.close()
+    connection.close()
 
-#     return render_template('customer_transaction_history.html',
-#                            transaction_history=transaction_history,
-#                            current_date=current_date,
-#                            current_time=current_time)
+    return render_template('customer_history.html', transaction_history=transaction_history,
+                           customer_id=customer_id, customer_name=customer_name, customer_email=customer_email,
+                           current_date=current_date, current_time=current_time)
+
 
 ######################### RIDERS START HERE ############################
 @app.route('/rider_dashboard', methods=['GET', 'POST'])
@@ -2083,6 +2086,7 @@ def update_profile_picture():
 
     return render_template('rider_settings.html',rider_id=rider_id, rider_name=rider_name, rider_email=rider_email, 
             rider_phone=rider_phone, filename=uploaded_filename, current_date=current_date, current_time=current_time)
+
 
 ########################## ADMIN STARTS HERE ############################
 @app.route('/admin', methods=['GET', 'POST'])

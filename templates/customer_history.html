@@ -35,16 +35,17 @@
             <p><i class="bi-telephone-fill"></i> Phone: <label id="c-number">{{ customer_phone }}</label></p>
             <p><i class="bi-calendar-day-fill"></i> Date: <label id="date">{{ current_date }}</label></label></p>
             <p><i class="bi-clock-fill"></i> Time: <label id="time-display">{{ current_time }}</label></p>
-            <a href="/history" class="btn btn-light w-100 mb-3">History</a>
-            <a href="#" class="btn btn-light w-100 mb-3">Settings</a>
-            <a href="/logout" class="btn btn-outline-light w-100">
+            <a href="#" class="btn btn-light w-100 mb-3">History</a>
+            <a href="/customer_settings" class="btn btn-light w-100 mb-3">Settings</a>
+            <a href="/logout" class="btn btn-outline-light w-100"></a>
                 <i class="bi bi-box-arrow-right"></i> Logout
             </a>
         </div>
         <div class="container-fluid bg-light">
             <div class="dashboard-container lh-lg">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="text-start m-0">Customer - Settings</h6>
+                    <h6 class="text-start m-0">Customer - Transaction History</h6>
+                    <h6 class="m-0 text-end">Total Transactions: {{ transaction_history|length }}</h6>
                     <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-stallion mb-3 text-end">
                         <i class="bi-arrow-return-left"></i> Back to DashBoard
                     </a>
@@ -64,67 +65,43 @@
                     {% endif %}
                 {% endwith %}
 
-                <!-- Verified Account -->
-                <div class="card p-4 mb-3">
-                    <div class="d-flex align-items-center">
-                        <i class="bi-shield-fill-check text-color"></i> <h6 class="ms-2 mb-0 fw-bold">Account Verification Status</h6>
+                <!-- Transaction History -->
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped text-nowrap">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Request ID</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Package Desc</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Time Req</th>
+                                <th scope="col">Time Del</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transaction_history %}
+                            <tr>
+                                <th scope="row">{{ loop.index }}</th>
+                                <td>{{ transaction.request_id }}</td>
+                                <td>{{ transaction.type }}</td>
+                                <td>{{ transaction.package_desc }}</td>
+                                <td>{{ transaction.date_requested }}</td>
+                                <td>{{ transaction.time_requested }}</td>
+                                <td>{{ transaction.time_delivered }}</td>
+                                <td>{{ transaction.status }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No Transactions Found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <p id="total-transactions" hidden>Total Transactions: {{ transaction_history|length }}</p>
                     </div>
-                    {% if account_verified %}
-                        <div class="d-flex align-items-center">
-                            <i class="bi-person-check text-success"></i> <span class="text-card ms-2">Account Verified</span>
-                        </div>
-                        <p>Your account has been verified. You can now make delivery requests.</p>
-                    {% else %}
-                        <div class="d-flex align-items-center">
-                            <i class="bi-person-x text-danger"></i> <span class="text-card ms-2">Account Not Verified</span>
-                        </div>
-                        <p>Your account has not been verified. Please verify your account to request delivery.</p>
-                        <form method="POST" action="/resend_verification">
-                            <button type="submit" class="btn btn-sm btn-success">Verify</button>
-                        </form>
-                        <p class="m-0">Click the button above to resend the verification email.</p>
-                        <p class="m-0">If you haven't received the verification email, please check your spam folder or contact support.</p>
-                    {% endif %}
-                </div>
-
-                <!-- Customer Profile -->
-                <div class="card d-block p-4">
-                    <div class="d-flex align-items-center">
-                        <i class="bi-person-circle text-color"></i> <h6 class="ms-2 mb-0 fw-bold">Edit Profile</h6>
-                    </div>
-                    <form action="/customer_profile" method="post">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-12">
-                                <label for="customer_name" class="form-label">Full Name:</label>
-                                <p>
-                                    <input type="text" id="customer_name" name="customer_name" value="{{ customer_name }}" class="form-control border focus-ring" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);" placeholder="Your Name" required disabled>
-                                </p>
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-12">
-                                <label for="customer_email" class="form-label">Email:</label>
-                                <p>
-                                    <input type="email" id="customer_email" name="customer_email" value="{{ customer_email }}" class="form-control border focus-ring" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);" placeholder="Your Email" required disabled>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-12">
-                                <label for="customer_number" class="form-label">Phone Number:</label>
-                                <p>
-                                    <input type="text" id="customer_number" name="customer_number" value="{{ customer_phone }}" class="form-control border focus-ring" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);" placeholder="Your Number" required disabled>
-                                </p>
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-12">
-                                <label for="customer_password" class="form-label">Password:</label>
-                                <p>
-                                    <input type="password" id="customer_password" name="customer_password" value="" class="form-control border focus-ring" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);" placeholder="Your Password" required disabled>
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <button id="btn-submitpofile" type="submit" class="btn btn-sm btn-stallion" disabled>Submit</button>
-                        <button id="enable-input" type="button" class="btn btn-sm btn-stallion">Enable</button>
-                    </form>
                 </div>
             </div>
         </div>
