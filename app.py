@@ -251,11 +251,10 @@ def login():
 
         if not response.get('success') or response.get('score', 0) < 0.5:
             flash("reCAPTCHA verification failed. Please try again.", "danger")
+            flash(os.getenv("RECAPTCHA_SITE_KEY"), "info")
+            flash(os.getenv("RECAPTCHA_SECRET_KEY"), "info")
+            flash(str(response), "info")
             return redirect(url_for('login'))
-        
-        flash(os.getenv("RECAPTCHA_SITE_KEY"), "info")
-        flash(os.getenv("RECAPTCHA_SECRET_KEY"), "info")
-        flash(str(response), "info")
 
         # --- End reCAPTCHA verification ---
 
