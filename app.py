@@ -235,6 +235,25 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        recaptcha_token = request.form.get('recaptcha_token')
+
+        # Verify reCAPTCHA
+        # --- reCAPTCHA verification ---
+        secret_key = os.getenv('RECAPTCHA_SECRET_KEY')
+        if not secret_key:
+            flash("reCAPTCHA not configured.", "danger")
+            return redirect(url_for('login'))
+
+        response = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={'secret': secret_key, 'response': recaptcha_token}
+        ).json()
+
+        if not response.get('success') or response.get('score', 0) < 0.5:
+            flash("reCAPTCHA verification failed. Please try again.", "danger")
+            return redirect(url_for('login'))
+
+        # --- End reCAPTCHA verification ---
 
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
@@ -757,14 +776,44 @@ def reset_password(token):
 
 
 ########################### RIDERS LOGIN DETAILS #############################
+@limiter.limit("5 per minute", exempt_when=lambda: 'rider_id' in session)
 @app.route('/rider_login', methods=['GET', 'POST'])
 def rider_login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        recaptcha_token = request.form.get('recaptcha_token')
+
+        # Verify reCAPTCHA
+        # --- reCAPTCHA verification ---
+        secret_key = os.getenv('RECAPTCHA_SECRET_KEY')
+        if not secret_key:
+            flash("reCAPTCHA not configured.", "danger")
+            return redirect(url_for('rider_login'))
+
+        response = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={'secret': secret_key, 'response': recaptcha_token}
+        ).json()
+
+        if not response.get('success') or response.get('score', 0) < 0.5:
+            flash("reCAPTCHA verification failed. Please try again.", "danger")
+            return redirect(url_for('rider_login'))
+
+        # --- End reCAPTCHA verification ---
 
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
+
+        # Get rider IP address
+        rider_ip = request.remote_addr
+        # --- Check if IP is blocked ---
+        cursor.execute("SELECT * FROM blocked_ips WHERE ip_address = %s", (rider_ip,))
+        blocked = cursor.fetchone()
+        if blocked:
+            flash("Your IP address has been blocked due to suspicious activity.", "danger")
+            return redirect(url_for('rider_login'))
+        # --- End IP block check ---
 
         sqlInsert = "SELECT * FROM riders WHERE rider_email = %s"
         cursor.execute(sqlInsert, (email,))
@@ -788,12 +837,45 @@ def rider_login():
             return redirect(url_for('rider_login'))
     return render_template('rider_login.html')
 
+@limiter.limit("5 per minute", exempt_when=lambda: 'rider_id' in session)
 @app.route('/rider_signup', methods=['GET', 'POST'])
 def rider_signup():
     if request.method == 'POST':
+        ip_address = request.remote_addr
         rider_email = request.form['email']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
+        recaptcha_token = request.form.get('recaptcha_token')
+
+        # Verify reCAPTCHA
+        # --- reCAPTCHA verification ---
+        secret_key = os.getenv('RECAPTCHA_SECRET_KEY')
+        if not secret_key:
+            flash("reCAPTCHA not configured.", "danger")
+            return redirect(url_for('rider_signup'))
+
+        response = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={'secret': secret_key, 'response': recaptcha_token}
+        ).json()
+
+        if not response.get('success') or response.get('score', 0) < 0.5:
+            flash("reCAPTCHA verification failed. Please try again.", "danger")
+            return redirect(url_for('rider_signup'))
+
+        # --- End reCAPTCHA verification ---
+
+        # Input validation
+        try:
+            valid_email = validate_email(rider_email)
+            rider_email = valid_email.email  # Normalized
+        except EmailNotValidError:
+            flash("Invalid email address.", "danger")
+            return redirect(url_for('rider_signup'))
+
+        if len(password) < 8 or not re.search(r"[A-Z]", password) or not re.search(r"\d", password) or not re.search(r"[!@#$%^&*]", password):
+            flash("Password must be at least 8 characters long and include an uppercase letter, number, and special character.", "danger")
+            return redirect(url_for('rider_signup'))
 
         if password != confirm_password:
             flash('Passwords do not match', 'danger')
@@ -806,6 +888,14 @@ def rider_signup():
         cursor = connection.cursor()
 
         try:
+            # --- Check if IP is blocked ---
+            cursor.execute("SELECT * FROM blocked_ips WHERE ip_address = %s", (ip_address,))
+            blocked = cursor.fetchone()
+            if blocked:
+                flash("Signup blocked. Suspicious activity detected.", "danger")
+                return redirect(url_for('signup'))
+            # --- End IP block check ---
+
             # Check if the email already exists
             cursor.execute("SELECT * FROM riders WHERE rider_email = %s", (rider_email,))
             existing_rider = cursor.fetchone()
@@ -828,6 +918,7 @@ def rider_signup():
             connection.close()
     return render_template('rider_signup.html')
 
+@limiter.limit("5 per minute", exempt_when=lambda: 'rider_id' in session)
 @app.route('/rider_registration', methods=['GET','POST'])
 def rider_registration():
     if request.method == 'POST':
@@ -850,6 +941,7 @@ def rider_registration():
             # uploaded_filename = filename
 
         # Retrieve form data
+        ip_address = request.remote_addr
         rider_name = request.form['rider_name']
         rider_email = request.form['rider_email']
         # 'rider_photo': request.form['profile_pictures'],
@@ -868,13 +960,159 @@ def rider_registration():
         guarantor_relationship = request.form['guarantor_relationship']
         guarantor_occupation = request.form['guarantor_occupation']
         guarantor_state = request.form['guarantor_state']
+        recaptcha_token = request.form.get('recaptcha_token')
+
+        # Verify reCAPTCHA
+        # --- reCAPTCHA verification ---
+        secret_key = os.getenv('RECAPTCHA_SECRET_KEY')
+        if not secret_key:
+            flash("reCAPTCHA not configured.", "danger")
+            return redirect(url_for('rider_signup'))
+
+        response = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={'secret': secret_key, 'response': recaptcha_token}
+        ).json()
+
+        if not response.get('success') or response.get('score', 0) < 0.5:
+            flash("reCAPTCHA verification failed. Please try again.", "danger")
+            return redirect(url_for('rider_signup'))
+
+        # --- End reCAPTCHA verification ---
+
+        # Input validation functions
+        # --- Helper validation functions ---
+        def is_valid_name(name):
+            return re.match(r"^[A-Za-z\s\-\']{2,50}$", name)
+
+        def is_valid_phone(number):
+            return re.match(r"^\+?\d{10,15}$", number)
+
+        def is_valid_account_number(number):
+            return re.match(r"^\d{10,20}$", number)
+
+        def is_valid_nin(code):
+            return re.match(r"^\d{11}$", code)
+
+        def is_valid_address(address):
+            return re.match(r"^[A-Za-z0-9\s,.\-/#]+$", address)
+
+        def sanitize(text):
+            return text.strip()
+
+        # --- Input Sanitization ---
+        rider_name = sanitize(rider_name).title()
+        rider_email = sanitize(rider_email).lower()
+        rider_number = sanitize(rider_number)
+        guarantor_number = sanitize(guarantor_number)
+        acct_num = sanitize(acct_num)
+        nin = sanitize(nin)
+        bank_name = sanitize(bank_name).title()
+        rider_vehicle = sanitize(rider_vehicle).title()
+        guarantor_name = sanitize(guarantor_name).title()
+        guarantor_relationship = sanitize(guarantor_relationship).title()
+        guarantor_occupation = sanitize(guarantor_occupation).title()
+        guarantor_state = sanitize(guarantor_state).title()
+        residential_address = sanitize(residential_address)
+        guarantor_residential_address = sanitize(guarantor_residential_address)
+        rider_city = sanitize(rider_city).title()
+        rider_state = sanitize(rider_state).title()
+        rider_age = sanitize(rider_age)
+
+        # --- Input Validation ---
+        if not is_valid_name(rider_name):
+            flash("Full name must contain only letters, spaces, hyphens, or apostrophes.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        try:
+            valid_email = validate_email(rider_email)
+            rider_email = valid_email.email  # Normalized
+        except EmailNotValidError:
+            flash("Invalid email address.", "danger")
+            return redirect(url_for('rider_signup'))
+
+        if not is_valid_phone(rider_number):
+            flash("Invalid rider phone number format.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_phone(guarantor_number):
+            flash("Invalid guarantor phone number format.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_account_number(acct_num):
+            flash("Invalid account number format.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_name(bank_name):
+            flash("Invalid bank name.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_name(rider_vehicle):
+            flash("Invalid vehicle type.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_name(guarantor_name):
+            flash("Invalid name.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_name(guarantor_relationship):
+            flash("Invalid relationship.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_name(guarantor_occupation):
+            flash("Invalid occupation.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_name(guarantor_state):
+            flash("Invalid state.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_name(rider_state):
+            flash("Invalid state.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_address(residential_address):
+            flash("Residential address contains invalid characters.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_address(guarantor_residential_address):
+            flash("Residential address contains invalid characters.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_name(rider_city):
+            flash("Invalid city name.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        if not is_valid_nin(nin):
+            flash("NIN must be numeric and exactly 11 characters.", "danger")
+            return redirect(url_for('rider_registration'))
+
+        # --- Rider age validation ---
+        try:
+            age = int(rider_age)
+            if age < 18 or age > 99:
+                flash("Rider age must be between 18 and 99.", "danger")
+                return redirect(url_for('rider_registration'))
+        except ValueError:
+            flash("Rider age must be a valid number.", "danger")
+            return redirect(url_for('rider_registration'))
         
+        rider_age = age  # Use the validated integer age
+
         # Connect to database and check for duplicates
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         
         try:
-            # Step 1: Check for duplicates
+            # Step 1: Check for blocked IP addresses and duplicates
+            # --- Check if IP is blocked ---
+            cursor.execute("SELECT * FROM blocked_ips WHERE ip_address = %s", (ip_address,))
+            blocked = cursor.fetchone()
+            if blocked:
+                flash("Signup blocked. Suspicious activity detected.", "danger")
+                return redirect(url_for('signup'))
+            # --- End IP block check ---
+
             # Check if the email, rider phone, or guarantor phone already exists
             check_fields = {
                 "Email already registered!": ("rider_email", rider_email),
@@ -883,8 +1121,8 @@ def rider_registration():
                 "Account Number already registered!": ("account_number", acct_num),
             }
 
-            for msg, (field, value) in check_fields.items():
-                cursor.execute(f"SELECT * FROM riders WHERE {field} = %s", (value,))
+            for msg, (col_name, value) in check_fields.items():
+                cursor.execute(f"SELECT * FROM riders WHERE {col_name} = %s", (value,))
                 if cursor.fetchone():
                     flash(msg, "danger")
                     return redirect(url_for('rider_registration'))
@@ -897,13 +1135,13 @@ def rider_registration():
             cursor.execute("""
                 INSERT INTO riders (rider_name, rider_email, rider_photo, rider_number, rider_age, rider_address, city,
                     state, rider_nin, account_number, bank_name, vehicle, guarantor_name, guarantor_number, guarantor_address, 
-                    guarantor_relationship, guarantor_occupation, guarantor_state, verification_token, is_verified, expires_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR))
+                    guarantor_relationship, guarantor_occupation, guarantor_state, verification_token, is_verified, expires_at, ip_address)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DATE_ADD(NOW(), INTERVAL 1 HOUR), %s)
             """, (rider_name, rider_email, filename, rider_number, rider_age, 
                   residential_address, rider_city, rider_state, nin, acct_num, 
                   bank_name, rider_vehicle, guarantor_name, guarantor_number, guarantor_residential_address, 
                   guarantor_relationship, guarantor_occupation, guarantor_state, 
-                  verification_token, False))  # Set is_verified to False initially
+                  verification_token, False, ip_address))  # Set is_verified to False initially
             rd_id = cursor.lastrowid  # Get the auto-incremented ID
             
             # Step 2: Generate user_id in the format CU-xxx

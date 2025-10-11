@@ -527,3 +527,42 @@ if (window.location.pathname.includes('customer_settings')) {
         }
     });
 }
+
+if (window.location.pathname.includes('customer_history')) {
+    document.addEventListener('DOMContentLoaded', () => {
+        // Update the greeting message and time display
+        function updateTime() {
+            var now = new Date(); // Get current time
+            var current_time = now.toLocaleTimeString(); // Format time as HH:MM:SS
+            var time_display = document.getElementById('time-display');
+            time_display.innerHTML = current_time; // Update the HTML element
+
+            let time_greeting = now;
+            let hours = time_greeting.getHours();
+
+            if (hours >= 17) {  // 5:00 PM and later
+                document.getElementById('greeting').innerHTML = 'Good Evening';
+            } else if (hours >= 12) {  // 12:00 PM to 4:59 PM
+                document.getElementById('greeting').innerHTML = 'Good Afternoon';
+            } else {  // Before 12:00 PM
+                document.getElementById('greeting').innerHTML = 'Good Morning';
+            }
+        }
+
+        // Call the updateTime function every second (1000 ms)
+        setInterval(updateTime, 1000);
+
+        // Run the updateTime function on page load to ensure it's immediately shown
+        updateTime()
+
+        // Email truncation
+        const emailInput = document.getElementById('mail');
+        emailInput.textContent = formatEmail(emailInput.textContent);
+
+        function formatEmail(email) {
+            const [name, domain] = email.split('@');
+            const briefName = name.length > 8 ? name.substring(0, 8) + '...' : name;
+            return `${briefName}@${domain}`;
+        }
+    });
+}
