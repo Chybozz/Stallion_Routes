@@ -53,10 +53,10 @@
                     </form>
 
                     <!-- Google reCAPTCHA v3 -->
-                    <script src="https://www.google.com/recaptcha/api.js?render={{ RECAPTCHA_SITE_KEY }}"></script>
+                    <script src="https://www.google.com/recaptcha/api.js?render={{ site_key }}"></script>
                     <script>
                     grecaptcha.ready(function() {
-                        grecaptcha.execute('{{ RECAPTCHA_SITE_KEY }}', {action: 'signup'}).then(function(token) {
+                        grecaptcha.execute('{{ site_key }}', {action: 'rider_login'}).then(function(token) {
                             document.getElementById('recaptcha_token').value = token;
                         });
                     });
