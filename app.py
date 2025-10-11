@@ -49,7 +49,7 @@ limiter = Limiter(
 )
 app = app  # For deployment with Gunicorn or other WSGI servers
 
-EMAIL_USER = os.getenv('EMAIL_USER')
+EMAIL_USER = os.getenv('EMAIL_DEFAULT_SENDER')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 
