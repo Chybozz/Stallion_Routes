@@ -48,15 +48,15 @@
 
                         <!-- Hidden field for reCAPTCHA token -->
                         <input type="hidden" id="recaptcha_token" name="recaptcha_token">
-                        
+
                         <button type="submit" class="btn btn-stallion col-12">Login</button>
                     </form>
 
                     <!-- Google reCAPTCHA v3 -->
-                    <script src="https://www.google.com/recaptcha/api.js?render={{ site_key }}"></script>
+                    <script src="https://www.google.com/recaptcha/api.js?render={{ RECAPTCHA_SITE_KEY }}"></script>
                     <script>
                     grecaptcha.ready(function() {
-                        grecaptcha.execute('{{ site_key }}', {action: 'signup'}).then(function(token) {
+                        grecaptcha.execute('{{ RECAPTCHA_SITE_KEY }}', {action: 'signup'}).then(function(token) {
                             document.getElementById('recaptcha_token').value = token;
                         });
                     });

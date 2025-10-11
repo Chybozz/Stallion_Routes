@@ -287,7 +287,9 @@ def login():
         else:
             flash('Invalid email or password', 'danger')
             return redirect(url_for('login'))
-    return render_template('login.html')
+
+    site_key = os.getenv('RECAPTCHA_SITE_KEY')
+    return render_template('login.html', site_key=site_key)
 
 @limiter.limit("5 per minute", exempt_when=lambda: 'user_id' in session)
 @app.route('/signup', methods=['GET', 'POST'])
@@ -835,7 +837,9 @@ def rider_login():
         else:
             flash('Invalid email or password', 'danger')
             return redirect(url_for('rider_login'))
-    return render_template('rider_login.html')
+        
+    site_key = os.getenv('RECAPTCHA_SITE_KEY')
+    return render_template('rider_login.html', site_key=site_key)
 
 @limiter.limit("5 per minute", exempt_when=lambda: 'rider_id' in session)
 @app.route('/rider_signup', methods=['GET', 'POST'])
@@ -916,7 +920,9 @@ def rider_signup():
         finally:
             cursor.close()
             connection.close()
-    return render_template('rider_signup.html')
+
+    site_key = os.getenv('RECAPTCHA_SITE_KEY')
+    return render_template('rider_signup.html', site_key=site_key)
 
 @limiter.limit("5 per minute", exempt_when=lambda: 'rider_id' in session)
 @app.route('/rider_registration', methods=['GET','POST'])
@@ -1266,7 +1272,8 @@ def rider_registration():
             cursor.close()
             connection.close()
 
-    return render_template('rider_registration.html')
+    site_key = os.getenv('RECAPTCHA_SITE_KEY')
+    return render_template('rider_registration.html', site_key=site_key)
 
 @app.route('/verify_rider/<token>')
 def verify_rider_email(token):

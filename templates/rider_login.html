@@ -53,15 +53,15 @@
                     </form>
 
                     <!-- Google reCAPTCHA v3 -->
-                    <script src="https://www.google.com/recaptcha/api.js?render={{ site_key }}"></script>
+                    <script src="https://www.google.com/recaptcha/api.js?render={{ RECAPTCHA_SITE_KEY }}"></script>
                     <script>
                     grecaptcha.ready(function() {
-                        grecaptcha.execute('{{ site_key }}', {action: 'signup'}).then(function(token) {
+                        grecaptcha.execute('{{ RECAPTCHA_SITE_KEY }}', {action: 'signup'}).then(function(token) {
                             document.getElementById('recaptcha_token').value = token;
                         });
                     });
                     </script>
-                    
+
                     <div class="text-center mt-3">
                         <p>Don't have an account? <a href="{{ url_for('rider_signup') }}" class="text-decoration-none text-color">Sign Up</a></p>
                     </div>
