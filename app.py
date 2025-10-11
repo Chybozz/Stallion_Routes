@@ -244,16 +244,33 @@ def login():
             flash("reCAPTCHA not configured.", "danger")
             return redirect(url_for('login'))
 
-        response = requests.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            data={'secret': secret_key, 'response': recaptcha_token}
-        ).json()
+        try:
+            response = requests.post(
+                'https://www.google.com/recaptcha/api/siteverify',
+                data={'secret': secret_key, 'response': recaptcha_token}
+            ).json()
 
-        if not response.get('success') or response.get('score', 0) < 0.5:
-            flash("reCAPTCHA verification failed. Please try again.", "danger")
-            flash(os.getenv("RECAPTCHA_SITE_KEY"), "info")
-            flash(os.getenv("RECAPTCHA_SECRET_KEY"), "info")
-            flash(str(response), "info")
+            # Debug (optional during testing)
+            # flash(str(response), "info")
+
+            # ✅ Check if verification succeeded
+            if not response.get('success'):
+                flash("reCAPTCHA verification failed. Please try again.", "danger")
+                return redirect(url_for('login'))
+
+            # ✅ If score exists (v3), check threshold
+            if 'score' in response and response['score'] < 0.5:
+                flash("Suspicious activity detected (low reCAPTCHA score). Please try again.", "danger")
+                return redirect(url_for('login'))
+
+            # ✅ Optional: Ensure hostname matches your domain
+            expected_domain = "stallionroutes.com"
+            if response.get("hostname") != expected_domain:
+                flash("reCAPTCHA hostname mismatch. Please try again.", "danger")
+                return redirect(url_for('login'))
+
+        except Exception as e:
+            flash(f"reCAPTCHA verification error: {str(e)}", "danger")
             return redirect(url_for('login'))
 
         # --- End reCAPTCHA verification ---
