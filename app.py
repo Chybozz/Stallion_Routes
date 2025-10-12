@@ -330,13 +330,33 @@ def signup():
             flash("reCAPTCHA not configured.", "danger")
             return redirect(url_for('signup'))
 
-        response = requests.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            data={'secret': secret_key, 'response': recaptcha_token}
-        ).json()
+        try:
+            response = requests.post(
+                'https://www.google.com/recaptcha/api/siteverify',
+                data={'secret': secret_key, 'response': recaptcha_token}
+            ).json()
 
-        if not response.get('success') or response.get('score', 0) < 0.5:
-            flash("reCAPTCHA verification failed. Please try again.", "danger")
+            # Debug (optional during testing)
+            # flash(str(response), "info")
+
+            # ✅ Check if verification succeeded
+            if not response.get('success'):
+                flash("reCAPTCHA verification failed. Please try again.", "danger")
+                return redirect(url_for('signup'))
+
+            # ✅ If score exists (v3), check threshold
+            if 'score' in response and response['score'] < 0.5:
+                flash("Suspicious activity detected (low reCAPTCHA score). Please try again.", "danger")
+                return redirect(url_for('signup'))
+
+            # ✅ Optional: Ensure hostname matches your domain
+            expected_domain = "stallionroutes.com"
+            if response.get("hostname") != expected_domain:
+                flash("reCAPTCHA hostname mismatch. Please try again.", "danger")
+                return redirect(url_for('signup'))
+
+        except Exception as e:
+            flash(f"reCAPTCHA verification error: {str(e)}", "danger")
             return redirect(url_for('signup'))
 
         # --- End reCAPTCHA verification ---
@@ -813,13 +833,33 @@ def rider_login():
             flash("reCAPTCHA not configured.", "danger")
             return redirect(url_for('rider_login'))
 
-        response = requests.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            data={'secret': secret_key, 'response': recaptcha_token}
-        ).json()
+        try:
+            response = requests.post(
+                'https://www.google.com/recaptcha/api/siteverify',
+                data={'secret': secret_key, 'response': recaptcha_token}
+            ).json()
 
-        if not response.get('success') or response.get('score', 0) < 0.5:
-            flash("reCAPTCHA verification failed. Please try again.", "danger")
+            # Debug (optional during testing)
+            # flash(str(response), "info")
+
+            # ✅ Check if verification succeeded
+            if not response.get('success'):
+                flash("reCAPTCHA verification failed. Please try again.", "danger")
+                return redirect(url_for('rider_login'))
+
+            # ✅ If score exists (v3), check threshold
+            if 'score' in response and response['score'] < 0.5:
+                flash("Suspicious activity detected (low reCAPTCHA score). Please try again.", "danger")
+                return redirect(url_for('rider_login'))
+
+            # ✅ Optional: Ensure hostname matches your domain
+            expected_domain = "stallionroutes.com"
+            if response.get("hostname") != expected_domain:
+                flash("reCAPTCHA hostname mismatch. Please try again.", "danger")
+                return redirect(url_for('rider_login'))
+
+        except Exception as e:
+            flash(f"reCAPTCHA verification error: {str(e)}", "danger")
             return redirect(url_for('rider_login'))
 
         # --- End reCAPTCHA verification ---
@@ -878,13 +918,33 @@ def rider_signup():
             flash("reCAPTCHA not configured.", "danger")
             return redirect(url_for('rider_signup'))
 
-        response = requests.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            data={'secret': secret_key, 'response': recaptcha_token}
-        ).json()
+        try:
+            response = requests.post(
+                'https://www.google.com/recaptcha/api/siteverify',
+                data={'secret': secret_key, 'response': recaptcha_token}
+            ).json()
 
-        if not response.get('success') or response.get('score', 0) < 0.5:
-            flash("reCAPTCHA verification failed. Please try again.", "danger")
+            # Debug (optional during testing)
+            # flash(str(response), "info")
+
+            # ✅ Check if verification succeeded
+            if not response.get('success'):
+                flash("reCAPTCHA verification failed. Please try again.", "danger")
+                return redirect(url_for('rider_signup'))
+
+            # ✅ If score exists (v3), check threshold
+            if 'score' in response and response['score'] < 0.5:
+                flash("Suspicious activity detected (low reCAPTCHA score). Please try again.", "danger")
+                return redirect(url_for('rider_signup'))
+
+            # ✅ Optional: Ensure hostname matches your domain
+            expected_domain = "stallionroutes.com"
+            if response.get("hostname") != expected_domain:
+                flash("reCAPTCHA hostname mismatch. Please try again.", "danger")
+                return redirect(url_for('rider_signup'))
+
+        except Exception as e:
+            flash(f"reCAPTCHA verification error: {str(e)}", "danger")
             return redirect(url_for('rider_signup'))
 
         # --- End reCAPTCHA verification ---
@@ -993,16 +1053,36 @@ def rider_registration():
         secret_key = os.getenv('RECAPTCHA_SECRET_KEY')
         if not secret_key:
             flash("reCAPTCHA not configured.", "danger")
-            return redirect(url_for('rider_signup'))
+            return redirect(url_for('rider_registration'))
 
-        response = requests.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            data={'secret': secret_key, 'response': recaptcha_token}
-        ).json()
+        try:
+            response = requests.post(
+                'https://www.google.com/recaptcha/api/siteverify',
+                data={'secret': secret_key, 'response': recaptcha_token}
+            ).json()
 
-        if not response.get('success') or response.get('score', 0) < 0.5:
-            flash("reCAPTCHA verification failed. Please try again.", "danger")
-            return redirect(url_for('rider_signup'))
+            # Debug (optional during testing)
+            # flash(str(response), "info")
+
+            # ✅ Check if verification succeeded
+            if not response.get('success'):
+                flash("reCAPTCHA verification failed. Please try again.", "danger")
+                return redirect(url_for('rider_registration'))
+
+            # ✅ If score exists (v3), check threshold
+            if 'score' in response and response['score'] < 0.5:
+                flash("Suspicious activity detected (low reCAPTCHA score). Please try again.", "danger")
+                return redirect(url_for('rider_registration'))
+
+            # ✅ Optional: Ensure hostname matches your domain
+            expected_domain = "stallionroutes.com"
+            if response.get("hostname") != expected_domain:
+                flash("reCAPTCHA hostname mismatch. Please try again.", "danger")
+                return redirect(url_for('rider_registration'))
+
+        except Exception as e:
+            flash(f"reCAPTCHA verification error: {str(e)}", "danger")
+            return redirect(url_for('rider_registration'))
 
         # --- End reCAPTCHA verification ---
 
@@ -2058,7 +2138,7 @@ def customer_history():
 
     return render_template('customer_history.html', transaction_history=transaction_history,
                            customer_id=customer_id, customer_name=customer_name, customer_email=customer_email,
-                           current_date=current_date, current_time=current_time)
+                           customer_phone=customer_phone, current_date=current_date, current_time=current_time)
 
 
 ######################### RIDERS START HERE ############################
@@ -2506,6 +2586,7 @@ def admin_customer():
 def transaction_history():
     return render_template('transaction_history.html')
 
+# Admin Payments
 @app.route('/admin_payments', methods=['GET', 'POST'])
 def admin_payments():
     if request.method == 'POST':
