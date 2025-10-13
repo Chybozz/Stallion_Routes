@@ -1304,13 +1304,12 @@ def rider_registration():
 
                 <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
 
-                <h3 style="color: #333;">Please come along with:</h3>
-                <ul style="color: #555; font-size: 15px;">
-                <li>Original and photocopy of your NIN ID card or slip</li>
-                <li>Recommendation letter from your guarantor</li>
-                <li>Original and photocopy of your highest educational qualification</li>
-                <li>Original and photocopy of your valid driving license (if available)</li>
-                </ul>
+                <h3 style="color: #333;">Please click the below to upload all the necessary documents for final approval and documentation:</h3>
+                <p style="margin: 30px 0;">
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLScSv_j5djaJlFjCk7zKjpDQew0v7uDeWWJIR0nyrM23oYH7WQ/viewform?usp=header" style="background-color: #2e86de; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                    Click to Upload Documents
+                </a>
+                </p>
 
                 <p style="font-size: 15px; color: #333;">
                 <strong>Physical Verification Address:</strong><br>
@@ -2169,6 +2168,14 @@ def rider_dashboard():
                 with connection.cursor() as cursor:
 
                     if action == 'accept':
+                        rd_id = session.get('rider_id')
+                        # Check if rider is verified
+                        cursor.execute("SELECT is_verified FROM riders WHERE id = %s", (rd_id,))
+                        rider_verified = cursor.fetchone()
+
+                        if not rider_verified or not rider_verified[0]:
+                            return jsonify({'success': False, 'message': 'Your account is not verified. Please check your email or go to the settings tab and verify your account before accepting orders.'})
+
                         # Handle accept request
                         cursor.execute("""
                             UPDATE delivery_requests SET rider_id = %s, status = 'in transit'
@@ -2246,7 +2253,7 @@ def rider_dashboard():
         """, (rider_id,))
         completed_deliveries = cursor.fetchall()
 
-        # select the rider's wallet balance from the transactions table
+        # select the rider's wallet balance from the riders table
         cursor.execute("""
             SELECT COALESCE(wallet_balance, 0.00) FROM riders WHERE rider_id = %s
         """, (rider_id,))
