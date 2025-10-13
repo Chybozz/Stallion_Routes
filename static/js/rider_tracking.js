@@ -1,7 +1,6 @@
 let map, directionsService, directionsRenderer;
 let pickupMarker, deliveryMarker, riderMarker;
-let routePath = null;
-let currentRiderPosition = null;
+let routePath = [];
 
 // Initialize Google Map
 function initMap(pickupAddress, deliveryAddress) {
@@ -9,7 +8,7 @@ function initMap(pickupAddress, deliveryAddress) {
 
     map = new google.maps.Map(document.getElementById("rider-map"), {
         zoom: 13,
-        center: { lat: 6.3249, lng: 8.1137 } // default center (Abakaliki)
+        center: { lat: 6.3249, lng: 8.1137 } // default Abakaliki center
     });
 
     directionsService = new google.maps.DirectionsService();
@@ -23,14 +22,13 @@ function initMap(pickupAddress, deliveryAddress) {
     Promise.all([
         geocodeAddress(geocoder, pickupAddress),
         geocodeAddress(geocoder, deliveryAddress)
-    ]).then(([pickupCoords, deliveryCoords]) => {
+    ])
+    .then(([pickupCoords, deliveryCoords]) => {
         addMarkers(pickupCoords, deliveryCoords);
         drawRoute(pickupCoords, deliveryCoords);
         calculateFare(pickupCoords, deliveryCoords);
-
-        // Simulate rider movement for now
-        simulateRider(pickupCoords, deliveryCoords);
-    }).catch(err => console.error("Geocode Error:", err));
+    })
+    .catch(err => console.error("Geocode Error:", err));
 }
 
 // Convert address to coordinates
@@ -59,7 +57,7 @@ function addMarkers(pickup, delivery) {
         position: delivery,
         map,
         label: "D",
-        title: "Delivery Destination"
+        title: "Delivery Location"
     });
 
     map.setCenter(pickup);
@@ -77,6 +75,7 @@ function drawRoute(start, end) {
         if (status === "OK") {
             directionsRenderer.setDirections(result);
             routePath = result.routes[0].overview_path;
+            simulateRider(routePath); // Start simulated rider once route loads
         } else {
             console.error("Directions request failed:", status);
         }
@@ -95,21 +94,21 @@ function calculateFare(start, end) {
             const element = response.rows[0].elements[0];
             const distanceKm = element.distance.value / 1000;
             const fare = Math.max(500, distanceKm * 150); // ₦150/km, min ₦500
-
             console.log(`Distance: ${element.distance.text}, Fare: ₦${fare.toFixed(0)}`);
-            // You can also display this fare somewhere in your HTML
+        } else {
+            console.error("Distance calculation failed:", status);
         }
     });
 }
 
-// Simulate rider moving along the route (for demo)
-function simulateRider(start, end) {
-    if (!routePath) return;
+// Simulate rider moving along the route
+function simulateRider(route) {
+    if (!route || route.length === 0) return;
 
     let index = 0;
 
     riderMarker = new google.maps.Marker({
-        position: start,
+        position: route[0],
         map,
         title: "Rider",
         icon: {
@@ -119,16 +118,15 @@ function simulateRider(start, end) {
     });
 
     const interval = setInterval(() => {
-        if (index >= routePath.length) {
+        if (index >= route.length) {
             clearInterval(interval);
-            console.log("Rider reached destination!");
+            console.log("✅ Rider reached destination!");
             return;
         }
 
-        const nextPosition = routePath[index];
+        const nextPosition = route[index];
         riderMarker.setPosition(nextPosition);
         map.panTo(nextPosition);
-
         index++;
-    }, 1000); // update every second
+    }, 1000);
 }
