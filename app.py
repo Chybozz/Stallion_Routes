@@ -2719,33 +2719,6 @@ def edit_rider(rider_id):
         # Render the edit form with the existing rider data
         return render_template('edit_rider.html', rider_data=rider_data)
 
-# Dictionary to store live locations for requests
-# rider_locations = {}
-rider_locations = defaultdict(list)
-
-@socketio.on('update_rider_location')
-def handle_rider_location(data):
-    request_id = data['request_id']
-    lat = data['lat']
-    lng = data['lng']
-
-    # Store the latest rider location in the dictionary
-    rider_locations[request_id].append((lat, lng))
-    # rider_locations[request_id] = {'lat': lat, 'lng': lng}
-
-    # Emit the new location to the correct customer (based on request_id)
-    emit('update_customer_map', {
-        'request_id': request_id,
-        'lat': lat,
-        'lng': lng,
-        'path': rider_locations[request_id]
-    }, room=request_id)
-
-@socketio.on('join_rider_room')
-def join_rider_room(data):
-    request_id = str(data['request_id'])
-    join_room(request_id)
-    print(f"User joined room: {request_id}")
 
 if __name__ == '__main__':
     # app.run(debug=True)
