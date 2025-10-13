@@ -369,7 +369,15 @@ if (window.location.pathname.includes('dashboard')) {
                             new bootstrap.Modal(document.getElementById('ratingModal')).show();
                             // Optionally, you can remove the confirmed request from the DOM, update status, etc. 
                         } else if (actionValue === 'track') {
-                            alert(data.message);
+                            const pickup = this.getAttribute('data-pickup');
+                            const delivery = this.getAttribute('data-delivery');
+                            // Show map container
+                            document.getElementById('rider-location-map').style.display = 'block';
+
+                            // Initialize map
+                            initMap(pickup, delivery);
+
+                            // alert(data.message);
                         }
                     } else {
                         alert(data.message);

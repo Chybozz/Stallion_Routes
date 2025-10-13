@@ -1980,7 +1980,7 @@ def dashboard():
                     return jsonify({'success': True, 'message': 'Delivery Confirmed successfully!'})
 
                 elif action == 'track':
-                    return jsonify({'success': True, 'message': 'Package tracking feature is not implemented yet.'})
+                    return jsonify({'success': True, 'message': 'Tracking map initialized.'})
 
             except Exception as e:
                 return jsonify({'success': False, 'message': f'Error: {str(e)}'})
@@ -2012,8 +2012,10 @@ def dashboard():
         """, (customer_id,))
         pending_requests = cursor.fetchall()
     connection.close()
-    return render_template('dashboard.html', customer_id=customer_id, customer_name=customer_name, customer_email=customer_email, 
-        customer_phone=customer_phone, current_date=current_date, current_time=current_time, pending_requests=pending_requests)
+    return render_template('dashboard.html', customer_id=customer_id, customer_name=customer_name, 
+                            customer_email=customer_email, customer_phone=customer_phone, 
+                            current_date=current_date, current_time=current_time, 
+                            pending_requests=pending_requests, GOOGLE_MAPS_API_KEY=os.getenv('GOOGLE_MAPS_API_KEY'))
 
 @app.route('/submit-rating', methods=["POST"])
 def submit_rating():
