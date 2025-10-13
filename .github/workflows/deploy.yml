@@ -49,6 +49,7 @@ jobs:
         EMAIL_DEFAULT_SENDER=${{ secrets.EMAIL_DEFAULT_SENDER }}
         RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }}
         RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET_KEY }}
+        GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
         EOL
 
         echo "🌀 Restarting Flask service..."
