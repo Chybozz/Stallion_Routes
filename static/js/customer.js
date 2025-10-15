@@ -387,6 +387,8 @@ if (window.location.pathname.includes('dashboard')) {
                             // Show map container
                             document.getElementById('rider-location-map').style.display = 'block';
 
+                            alert(pickup, delivery);
+
                             // Initialize map
                             initMap(pickup, delivery);
 
