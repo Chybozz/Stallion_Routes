@@ -390,7 +390,7 @@ if (window.location.pathname.includes('dashboard')) {
                             alert(delivery);
 
                             // Initialize map
-                            initMap(pickup, delivery);
+                            initTracking(pickup, delivery);
 
                             // alert(data.message);
                         }

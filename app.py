@@ -2014,7 +2014,7 @@ def dashboard():
     return render_template('dashboard.html', customer_id=customer_id, customer_name=customer_name, 
                             customer_email=customer_email, customer_phone=customer_phone, 
                             current_date=current_date, current_time=current_time, 
-                            pending_requests=pending_requests, GOOGLE_MAPS_API_KEY=os.getenv('GOOGLE_MAPS_API_KEY'))
+                            pending_requests=pending_requests)
 
 @app.route('/submit-rating', methods=["POST"])
 def submit_rating():
