@@ -387,10 +387,8 @@ if (window.location.pathname.includes('dashboard')) {
                             // Show map container
                             document.getElementById('rider-location-map').style.display = 'block';
 
-                            alert(delivery);
-
                             // Initialize map
-                            initTracking(pickup, delivery);
+                            initLeafletMap(pickup, delivery);
 
                             // alert(data.message);
                         }
@@ -402,111 +400,104 @@ if (window.location.pathname.includes('dashboard')) {
             });
         });
 
-        function initTracking(pickupAddress, deliveryAddress) {
-            console.log("initTracking called with:", pickupAddress, deliveryAddress);
+        let map, pickupMarker, deliveryMarker, riderMarker, routeControl;
 
-            const map = L.map('rider-map').setView([6.3249, 8.1137], 13);
-            console.log("Map created");
+        function initLeafletMap(pickupAddress, deliveryAddress) {
+        if (map) {
+            map.remove();
+        }
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-            console.log("Tile layer added");
+        map = L.map('rider-map').setView([6.3249, 8.1137], 13); // Default Abakaliki center
 
-            async function geocode(address) {
-                console.log("Geocoding:", address);
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
-                const data = await res.json();
-                console.log("Geocode data:", data);
-                if (data && data.length) {
+        // Add base map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Use Nominatim to geocode addresses
+        Promise.all([
+            geocodeAddress(pickupAddress),
+            geocodeAddress(deliveryAddress)
+        ]).then(([pickupCoords, deliveryCoords]) => {
+                // Add pickup and delivery markers
+                pickupMarker = L.marker(pickupCoords).addTo(map)
+                .bindPopup('<b>Pickup Location</b>').openPopup();
+
+                deliveryMarker = L.marker(deliveryCoords).addTo(map)
+                .bindPopup('<b>Delivery Location</b>');
+
+                // Draw route
+                routeControl = L.Routing.control({
+                waypoints: [L.latLng(pickupCoords), L.latLng(deliveryCoords)],
+                routeWhileDragging: false,
+                addWaypoints: false
+                }).addTo(map);
+
+                // Simulate rider moving along route
+                simulateRider(pickupCoords, deliveryCoords);
+
+                // Calculate distance and fare
+                calculateDistanceAndFare(pickupCoords, deliveryCoords);
+            });
+        }
+
+        // Geocode with Nominatim (OpenStreetMap)
+        function geocodeAddress(address) {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+            return fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data[0]) {
                     return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+                } else {
+                    alert("Address not found: " + address);
+                    return [6.3249, 8.1137]; // fallback to Abakaliki
                 }
-                throw new Error(`Geocode failed for: ${address}`);
-            }
+            });
+        }
 
-            async function simulate() {
-                try {
-                    const pickupLatLng = await geocode(pickupAddress);
-                    const deliveryLatLng = await geocode(deliveryAddress);
-                    console.log("Pickup coords:", pickupLatLng, "Delivery coords:", deliveryLatLng);
+        // Simulate moving rider
+        function simulateRider(start, end) {
+            const latDiff = (end[0] - start[0]) / 100;
+            const lngDiff = (end[1] - start[1]) / 100;
+            let step = 0;
 
-                    L.marker(pickupLatLng).addTo(map).bindPopup("Pickup").openPopup();
-                    L.marker(deliveryLatLng).addTo(map).bindPopup("Delivery");
+            const bikeIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/854/854894.png',
+                iconSize: [40, 40]
+            });
 
-                    const startLatLng = [
-                        pickupLatLng[0] - 0.005,
-                        pickupLatLng[1] - 0.005
-                    ];
-                    console.log("Rider start:", startLatLng);
+            riderMarker = L.marker(start, { icon: bikeIcon }).addTo(map)
+                .bindPopup('<b>Rider Moving...</b>');
 
-                    const riderIcon = L.icon({
-                        iconUrl: 'https://maps.google.com/mapfiles/kml/shapes/motorcycling.png',
-                        iconSize: [40, 40],
-                        iconAnchor: [20, 20]
-                    });
-
-                    const riderMarker = L.marker(startLatLng, { icon: riderIcon }).addTo(map);
-                    console.log("Rider marker added");
-
-                    const toPickup = await getRoute(startLatLng, pickupLatLng);
-                    console.log("Route to pickup:", toPickup);
-
-                    animateMarker(riderMarker, toPickup, 80);
-
-                    setTimeout(async () => {
-                        const toDelivery = await getRoute(pickupLatLng, deliveryLatLng);
-                        console.log("Route to delivery:", toDelivery);
-                        animateMarker(riderMarker, toDelivery, 80);
-                    }, toPickup.length * 80 + 500);
-
-                } catch (err) {
-                    console.error("Simulation failed:", err);
+            const interval = setInterval(() => {
+                if (step >= 100) {
+                    clearInterval(interval);
+                    riderMarker.bindPopup('<b>Rider Arrived!</b>').openPopup();
+                    return;
                 }
-            }
 
-            async function getRoute(from, to) {
-                return new Promise((resolve, reject) => {
-                    L.Routing.control({
-                        waypoints: [L.latLng(from), L.latLng(to)],
-                        createMarker: () => null,
-                        router: new L.Routing.osrmv1({
-                            serviceUrl: 'https://router.project-osrm.org/route/v1'
-                        }),
-                        addWaypoints: false,
-                        fitSelectedRoutes: false,
-                        routeWhileDragging: false
-                    })
-                    .on('routesfound', function (e) {
-                        console.log("Routes found event:", e);
-                        const coordinates = e.routes[0].coordinates;
-                        console.log("Coordinates:", coordinates);
-                        resolve(coordinates);
-                    })
-                    .on('routingerror', (err) => {
-                        console.error("Routing error:", err);
-                        reject(err);
-                    })
-                    .addTo(map);
-                });
-            }
+                const newLat = start[0] + (latDiff * step);
+                const newLng = start[1] + (lngDiff * step);
+                riderMarker.setLatLng([newLat, newLng]);
+                map.panTo([newLat, newLng]);
+                step++;
+            }, 1000);
+        }
 
-            function animateMarker(marker, path, speed = 100) {
-                console.log("Animating path length:", path.length);
-                let index = 0;
-                const interval = setInterval(() => {
-                    if (index >= path.length) {
-                        clearInterval(interval);
-                        console.log("Animation done");
-                        return;
-                    }
-                    marker.setLatLng(path[index]);
-                    map.panTo(path[index]);
-                    index++;
-                }, speed);
-            }
+        // Distance + Fare
+        function calculateDistanceAndFare(start, end) {
+            const R = 6371; // km
+            const dLat = (end[0] - start[0]) * Math.PI / 180;
+            const dLon = (end[1] - start[1]) * Math.PI / 180;
+            const a = Math.sin(dLat/2) ** 2 + Math.cos(start[0]*Math.PI/180) * Math.cos(end[0]*Math.PI/180) * Math.sin(dLon/2) ** 2;
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distanceKm = R * c;
 
-            simulate();
+            const fare = Math.max(500, distanceKm * 150);
+            console.log(`Distance: ${distanceKm.toFixed(2)} km`);
+            console.log(`Estimated Fare: ₦${fare.toFixed(0)}`);
         }
 
 
