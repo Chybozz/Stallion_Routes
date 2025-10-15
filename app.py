@@ -2325,7 +2325,7 @@ def deliver():
 
                 return jsonify({'success': True, 'message': 'Delivered successfully!'})
             elif action == 'track':
-                return jsonify({'success': True, 'message': f'Package tracking feature for {request_id} is not implemented yet.'})
+                return jsonify({'success': True, 'message': f'Package tracking feature for {request_id} is enabled.'})
 
             else:
                 return jsonify({'success': False, 'message': 'Invalid action'})

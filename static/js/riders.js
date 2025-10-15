@@ -141,7 +141,7 @@ if (window.location.pathname.includes('rider_dashboard')) {
                         }
                         else if (actionValue === 'track') {
                             // Show the map on the rider's dashboard
-                            document.getElementById('rider-location-map').style.display = 'block';
+                            document.getElementById('rider-map').style.display = 'block';
                             
                             // Initialize the map for the current delivery request
                             initRiderMap(riderId);
