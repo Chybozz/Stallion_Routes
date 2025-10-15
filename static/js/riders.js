@@ -144,12 +144,7 @@ if (window.location.pathname.includes('rider_dashboard')) {
                             document.getElementById('rider-location-map').style.display = 'block';
                             
                             // Initialize the map for the current delivery request
-                            initRiderMap(pickupAddress, deliveryAddress);
-                            
-                            socket.emit('join_rider_room', { request_id: requestID });
-                            
-                            // Start sending rider's real-time location
-                            getRiderLocation(requestID); // This function will start tracking and sending location updates
+                            initRiderMap(riderId);
                         }
                     } else {
                         alert(data.message);
@@ -160,62 +155,49 @@ if (window.location.pathname.includes('rider_dashboard')) {
         });
 
 
-        let riderMap, riderRoute, liveMarker;
+        function initRiderMap(riderId) {
+            const socket = io.connect(window.location.origin);
+            let map = L.map("rider-map").setView([6.3249, 8.1137], 13);
 
-        function initRiderMap(pickup, delivery) {
-        if (riderMap) riderMap.remove();
+            // Add OpenStreetMap layer
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: "© OpenStreetMap contributors",
+            }).addTo(map);
 
-            riderMap = L.map('rider-map').setView([6.3249, 8.1137], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(riderMap);
+            let riderMarker;
 
-        Promise.all([
-            geocodeAddress(pickup),
-            geocodeAddress(delivery)
-        ]).then(([pickupCoords, deliveryCoords]) => {
-                    L.marker(pickupCoords).addTo(riderMap).bindPopup("Pickup Location");
-                    L.marker(deliveryCoords).addTo(riderMap).bindPopup("Delivery Location");
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    (pos) => {
+                        const { latitude, longitude } = pos.coords;
+                        const coords = [latitude, longitude];
 
-                    riderRoute = L.Routing.control({
-                    waypoints: [L.latLng(pickupCoords), L.latLng(deliveryCoords)],
-                    routeWhileDragging: false,
-                    addWaypoints: false
-                }).addTo(riderMap);
-
-                // Get rider’s live location
-                if (navigator.geolocation) {
-                    navigator.geolocation.watchPosition(pos => {
-                        const lat = pos.coords.latitude;
-                        const lng = pos.coords.longitude;
-
-                        const icon = L.icon({
-                            iconUrl: 'https://maps.google.com/mapfiles/kml/shapes/motorcycling.png',
-                            iconSize: [40, 40]
-                        });
-
-                        if (!liveMarker) {
-                            liveMarker = L.marker([lat, lng], { icon }).addTo(riderMap)
-                            .bindPopup("You are here").openPopup();
+                        if (!riderMarker) {
+                            riderMarker = L.marker(coords, {
+                                icon: L.icon({
+                                    iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+                                    iconSize: [40, 40],
+                                    iconAnchor: [20, 40],
+                                }),
+                            }).addTo(map);
+                            map.setView(coords, 15);
                         } else {
-                            liveMarker.setLatLng([lat, lng]);
+                            riderMarker.setLatLng(coords);
                         }
 
-                        riderMap.panTo([lat, lng]);
-                    });
-                } else {
-                    alert("Geolocation not supported by this browser.");
-                }
-            });
-        }
-
-        // Reuse geocode function from before
-        function geocodeAddress(address) {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-        return fetch(url)
-            .then(res => res.json())
-            .then(data => [parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+                        // Send position to server
+                        socket.emit("rider_position", {
+                            rider_id: riderId,
+                            lat: latitude,
+                            lng: longitude,
+                        });
+                    },
+                    (err) => console.error(err),
+                    { enableHighAccuracy: true }
+                );
+            } else {
+                alert("Geolocation not supported by your browser.");
+            }
         }
 
 

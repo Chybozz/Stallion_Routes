@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, flash, redirect, url_for, ses
 from email_validator import validate_email, EmailNotValidError
 from werkzeug.utils import secure_filename
 from email.message import EmailMessage
-from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_socketio import SocketIO, emit
+from geopy.distance import geodesic
 from flask_cors import CORS  # Import CORS
 from config import get_db_connection
 # from db import get_db_connection  # Ensure this import is correct
@@ -54,6 +55,9 @@ EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 
 PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
+
+# In-memory storage for rider positions
+rider_locations = {}
 
 # Folder to store uploaded images 1
 # UPLOAD_FOLDER = 'static/uploads'
@@ -2726,6 +2730,31 @@ def edit_rider(rider_id):
         # Render the edit form with the existing rider data
         return render_template('edit_rider.html', rider_data=rider_data)
 
+# Receive rider location and broadcast to customers
+@socketio.on("rider_position")
+def handle_rider_position(data):
+    rider_id = data.get("rider_id")
+    lat = data.get("lat")
+    lng = data.get("lng")
+
+    if rider_id:
+        rider_locations[rider_id] = (lat, lng)
+        emit("rider_position_update", data, broadcast=True)
+
+# Calculate distance and estimated fare
+@app.route("/calculate_fare", methods=["POST"])
+def calculate_fare():
+    pickup = request.json.get("pickup")
+    dropoff = request.json.get("dropoff")
+
+    pickup_coords = (pickup["lat"], pickup["lng"])
+    dropoff_coords = (dropoff["lat"], dropoff["lng"])
+
+    distance_km = geodesic(pickup_coords, dropoff_coords).km
+    rate_per_km = 150  # ₦150 per km
+    total_fare = round(distance_km * rate_per_km, 2)
+
+    return jsonify({"distance": distance_km, "fare": total_fare})
 
 if __name__ == '__main__':
     # app.run(debug=True)

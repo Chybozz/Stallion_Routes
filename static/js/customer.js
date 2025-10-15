@@ -387,8 +387,8 @@ if (window.location.pathname.includes('dashboard')) {
                             // Show map container
                             document.getElementById('rider-location-map').style.display = 'block';
 
-                            // Initialize map
-                            initLeafletMap(pickup, delivery);
+                            // Initialize the map for this request
+                            initCustomerMap(pickup, delivery, requestID);
 
                             // alert(data.message);
                         }
@@ -400,106 +400,90 @@ if (window.location.pathname.includes('dashboard')) {
             });
         });
 
-        let map, pickupMarker, deliveryMarker, riderMarker, routeControl;
+        function initCustomerMap(pickupAddress, deliveryAddress, requestId) {
+            const socket = io.connect(window.location.origin);
+            const map = L.map("rider-map").setView([6.3249, 8.1137], 12);
 
-        function initLeafletMap(pickupAddress, deliveryAddress) {
-        if (map) {
-            map.remove();
-        }
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: "© OpenStreetMap contributors",
+            }).addTo(map);
 
-        map = L.map('rider-map').setView([6.3249, 8.1137], 13); // Default Abakaliki center
+            let pickupMarker, dropoffMarker, routeLine, riderMarker;
 
-        // Add base map
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
-
-        // Use Nominatim to geocode addresses
-        Promise.all([
-            geocodeAddress(pickupAddress),
-            geocodeAddress(deliveryAddress)
-        ]).then(([pickupCoords, deliveryCoords]) => {
-                // Add pickup and delivery markers
-                pickupMarker = L.marker(pickupCoords).addTo(map)
-                .bindPopup('<b>Pickup Location</b>').openPopup();
-
-                deliveryMarker = L.marker(deliveryCoords).addTo(map)
-                .bindPopup('<b>Delivery Location</b>');
-
-                // Draw route
-                routeControl = L.Routing.control({
-                waypoints: [L.latLng(pickupCoords), L.latLng(deliveryCoords)],
-                routeWhileDragging: false,
-                addWaypoints: false
-                }).addTo(map);
-
-                // Simulate rider moving along route
-                simulateRider(pickupCoords, deliveryCoords);
-
-                // Calculate distance and fare
-                calculateDistanceAndFare(pickupCoords, deliveryCoords);
-            });
-        }
-
-        // Geocode with Nominatim (OpenStreetMap)
-        function geocodeAddress(address) {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-            return fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                if (data && data[0]) {
-                    return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+            // Helper function: get coordinates using OpenStreetMap’s Nominatim API
+            async function getCoordinates(address) {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`
+                );
+                const data = await response.json();
+                if (data.length > 0) {
+                    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
                 } else {
-                    alert("Address not found: " + address);
-                    return [6.3249, 8.1137]; // fallback to Abakaliki
+                    alert("Could not find coordinates for: " + address);
+                    return null;
                 }
-            });
-        }
+            }
 
-        // Simulate moving rider
-        function simulateRider(start, end) {
-            const latDiff = (end[0] - start[0]) / 100;
-            const lngDiff = (end[1] - start[1]) / 100;
-            let step = 0;
+            async function setupRoute() {
+                const pickupCoords = await getCoordinates(pickupAddress);
+                const dropoffCoords = await getCoordinates(deliveryAddress);
+                if (!pickupCoords || !dropoffCoords) return;
 
-            const bikeIcon = L.icon({
-                iconUrl: 'https://maps.google.com/mapfiles/kml/shapes/motorcycling.png',
-                iconSize: [40, 40]
-            });
+                // Clear previous markers or route
+                if (pickupMarker) map.removeLayer(pickupMarker);
+                if (dropoffMarker) map.removeLayer(dropoffMarker);
+                if (routeLine) map.removeLayer(routeLine);
 
-            riderMarker = L.marker(start, { icon: bikeIcon }).addTo(map)
-                .bindPopup('<b>Rider Moving...</b>');
+                // Add pickup & destination markers
+                pickupMarker = L.marker(pickupCoords).addTo(map).bindPopup("Pickup Location").openPopup();
+                dropoffMarker = L.marker(dropoffCoords).addTo(map).bindPopup("Delivery Destination");
 
-            const interval = setInterval(() => {
-                if (step >= 100) {
-                    clearInterval(interval);
-                    riderMarker.bindPopup('<b>Rider Arrived!</b>').openPopup();
-                    return;
+                // Draw a simple route line (straight line)
+                routeLine = L.polyline([pickupCoords, dropoffCoords], { color: "blue" }).addTo(map);
+                map.fitBounds(routeLine.getBounds());
+
+                // Calculate distance & fare
+                const R = 6371; // Earth radius in km
+                const dLat = (dropoffCoords.lat - pickupCoords.lat) * Math.PI / 180;
+                const dLon = (dropoffCoords.lng - pickupCoords.lng) * Math.PI / 180;
+                const a =
+                Math.sin(dLat / 2) ** 2 +
+                Math.cos(pickupCoords.lat * Math.PI / 180) *
+                Math.cos(dropoffCoords.lat * Math.PI / 180) *
+                Math.sin(dLon / 2) ** 2;
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                const distance = R * c;
+                const fare = distance * 200; // ₦200 per km (example rate)
+
+                // Show fare info if element exists
+                const fareInfo = document.getElementById("fare-info");
+                if (fareInfo) {
+                    fareInfo.textContent = `Distance: ${distance.toFixed(2)} km | Estimated Fare: ₦${fare.toFixed(2)}`;
                 }
 
-                const newLat = start[0] + (latDiff * step);
-                const newLng = start[1] + (lngDiff * step);
-                riderMarker.setLatLng([newLat, newLng]);
-                map.panTo([newLat, newLng]);
-                step++;
-            }, 1000);
+                // Listen for rider’s live GPS updates
+                socket.on("rider_position_update", (data) => {
+                    if (data.request_id !== requestId) return; // Only update matching request
+
+                    const { lat, lng } = data;
+                    const coords = [lat, lng];
+
+                    if (!riderMarker) {
+                        riderMarker = L.marker(coords, {
+                            icon: L.icon({
+                                iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+                                iconSize: [40, 40],
+                                iconAnchor: [20, 40],
+                            }),
+                        }).addTo(map);
+                    } else {
+                        riderMarker.setLatLng(coords);
+                    }
+                });
+            }
+
+            setupRoute();
         }
-
-        // Distance + Fare
-        function calculateDistanceAndFare(start, end) {
-            const R = 6371; // km
-            const dLat = (end[0] - start[0]) * Math.PI / 180;
-            const dLon = (end[1] - start[1]) * Math.PI / 180;
-            const a = Math.sin(dLat/2) ** 2 + Math.cos(start[0]*Math.PI/180) * Math.cos(end[0]*Math.PI/180) * Math.sin(dLon/2) ** 2;
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            const distanceKm = R * c;
-
-            const fare = Math.max(500, distanceKm * 150);
-            console.log(`Distance: ${distanceKm.toFixed(2)} km`);
-            console.log(`Estimated Fare: ₦${fare.toFixed(0)}`);
-        }
-
 
         // Email truncation
         const emailInput = document.getElementById('mail');
