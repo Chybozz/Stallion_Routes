@@ -403,7 +403,7 @@ if (window.location.pathname.includes('dashboard')) {
         });
 
         function initTracking(pickupAddress, deliveryAddress) {
-            const map = L.map('map').setView([6.3249, 8.1137], 13);
+            const map = L.map('rider-map').setView([6.3249, 8.1137], 13);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
