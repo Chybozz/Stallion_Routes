@@ -144,7 +144,7 @@ if (window.location.pathname.includes('rider_dashboard')) {
                             document.getElementById('rider-location-map').style.display = 'block';
                             
                             // Initialize the map for the current delivery request
-                            initMap(pickupAddress, deliveryAddress, requestID);
+                            initRiderMap(pickupAddress, deliveryAddress);
                             
                             socket.emit('join_rider_room', { request_id: requestID });
                             
@@ -158,6 +158,66 @@ if (window.location.pathname.includes('rider_dashboard')) {
                 .catch(error => console.error('Error:', error));
             });
         });
+
+
+        let riderMap, riderRoute, liveMarker;
+
+        function initRiderMap(pickup, delivery) {
+        if (riderMap) riderMap.remove();
+
+            riderMap = L.map('rider-map').setView([6.3249, 8.1137], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(riderMap);
+
+        Promise.all([
+            geocodeAddress(pickup),
+            geocodeAddress(delivery)
+        ]).then(([pickupCoords, deliveryCoords]) => {
+                    L.marker(pickupCoords).addTo(riderMap).bindPopup("Pickup Location");
+                    L.marker(deliveryCoords).addTo(riderMap).bindPopup("Delivery Location");
+
+                    riderRoute = L.Routing.control({
+                    waypoints: [L.latLng(pickupCoords), L.latLng(deliveryCoords)],
+                    routeWhileDragging: false,
+                    addWaypoints: false
+                }).addTo(riderMap);
+
+                // Get rider’s live location
+                if (navigator.geolocation) {
+                    navigator.geolocation.watchPosition(pos => {
+                        const lat = pos.coords.latitude;
+                        const lng = pos.coords.longitude;
+
+                        const icon = L.icon({
+                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/854/854894.png',
+                            iconSize: [40, 40]
+                        });
+
+                        if (!liveMarker) {
+                            liveMarker = L.marker([lat, lng], { icon }).addTo(riderMap)
+                            .bindPopup("You are here").openPopup();
+                        } else {
+                            liveMarker.setLatLng([lat, lng]);
+                        }
+
+                        riderMap.panTo([lat, lng]);
+                    });
+                } else {
+                    alert("Geolocation not supported by this browser.");
+                }
+            });
+        }
+
+        // Reuse geocode function from before
+        function geocodeAddress(address) {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+        return fetch(url)
+            .then(res => res.json())
+            .then(data => [parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+        }
+
 
         // Email truncation
         const emailInput = document.getElementById('rider-email');
