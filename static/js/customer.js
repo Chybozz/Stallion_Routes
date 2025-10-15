@@ -464,7 +464,7 @@ if (window.location.pathname.includes('dashboard')) {
             let step = 0;
 
             const bikeIcon = L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/854/854894.png',
+                iconUrl: 'https://maps.google.com/mapfiles/kml/shapes/motorcycling.png',
                 iconSize: [40, 40]
             });
 
