@@ -441,7 +441,7 @@ if (window.location.pathname.includes('dashboard')) {
                     console.log("Rider start:", startLatLng);
 
                     const riderIcon = L.icon({
-                        iconUrl: 'https://cdn-icons-png.flaticon.com/512/2554/2554972.png',
+                        iconUrl: 'https://maps.google.com/mapfiles/kml/shapes/motorcycling.png',
                         iconSize: [40, 40],
                         iconAnchor: [20, 20]
                     });
