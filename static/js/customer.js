@@ -403,49 +403,42 @@ if (window.location.pathname.includes('dashboard')) {
         });
 
         function initTracking(pickupAddress, deliveryAddress) {
+            console.log("initTracking called with:", pickupAddress, deliveryAddress);
+
             const map = L.map('rider-map').setView([6.3249, 8.1137], 13);
+            console.log("Map created");
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
+            console.log("Tile layer added");
 
             async function geocode(address) {
+                console.log("Geocoding:", address);
                 const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
                 const data = await res.json();
+                console.log("Geocode data:", data);
                 if (data && data.length) {
                     return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
                 }
                 throw new Error(`Geocode failed for: ${address}`);
             }
 
-            function animateMarker(marker, path, speed = 100) {
-                let index = 0;
-                const interval = setInterval(() => {
-                    if (index >= path.length) {
-                        clearInterval(interval);
-                        return;
-                    }
-                    marker.setLatLng(path[index]);
-                    map.panTo(path[index]);
-                    index++;
-                }, speed);
-            }
-
             async function simulate() {
                 try {
                     const pickupLatLng = await geocode(pickupAddress);
                     const deliveryLatLng = await geocode(deliveryAddress);
+                    console.log("Pickup coords:", pickupLatLng, "Delivery coords:", deliveryLatLng);
 
-                    // Marker: Pickup & Delivery
-                    L.marker(pickupLatLng).addTo(map).bindPopup("📦 Pickup Location").openPopup();
-                    L.marker(deliveryLatLng).addTo(map).bindPopup("🏁 Delivery Location");
+                    L.marker(pickupLatLng).addTo(map).bindPopup("Pickup").openPopup();
+                    L.marker(deliveryLatLng).addTo(map).bindPopup("Delivery");
 
-                    // Simulate Rider starting 500m behind pickup
                     const startLatLng = [
                         pickupLatLng[0] - 0.005,
                         pickupLatLng[1] - 0.005
                     ];
+                    console.log("Rider start:", startLatLng);
 
                     const riderIcon = L.icon({
                         iconUrl: 'https://cdn-icons-png.flaticon.com/512/2554/2554972.png',
@@ -454,16 +447,18 @@ if (window.location.pathname.includes('dashboard')) {
                     });
 
                     const riderMarker = L.marker(startLatLng, { icon: riderIcon }).addTo(map);
+                    console.log("Rider marker added");
 
-                    // Step 1: Move to pickup
                     const toPickup = await getRoute(startLatLng, pickupLatLng);
+                    console.log("Route to pickup:", toPickup);
+
                     animateMarker(riderMarker, toPickup, 80);
 
                     setTimeout(async () => {
-                        // Step 2: Move to delivery
                         const toDelivery = await getRoute(pickupLatLng, deliveryLatLng);
+                        console.log("Route to delivery:", toDelivery);
                         animateMarker(riderMarker, toDelivery, 80);
-                    }, toPickup.length * 80 + 500); // Wait until pickup is reached
+                    }, toPickup.length * 80 + 500);
 
                 } catch (err) {
                     console.error("Simulation failed:", err);
@@ -481,15 +476,39 @@ if (window.location.pathname.includes('dashboard')) {
                         addWaypoints: false,
                         fitSelectedRoutes: false,
                         routeWhileDragging: false
-                    }).on('routesfound', function (e) {
+                    })
+                    .on('routesfound', function (e) {
+                        console.log("Routes found event:", e);
                         const coordinates = e.routes[0].coordinates;
+                        console.log("Coordinates:", coordinates);
                         resolve(coordinates);
-                    }).on('routingerror', reject).addTo(map);
+                    })
+                    .on('routingerror', (err) => {
+                        console.error("Routing error:", err);
+                        reject(err);
+                    })
+                    .addTo(map);
                 });
+            }
+
+            function animateMarker(marker, path, speed = 100) {
+                console.log("Animating path length:", path.length);
+                let index = 0;
+                const interval = setInterval(() => {
+                    if (index >= path.length) {
+                        clearInterval(interval);
+                        console.log("Animation done");
+                        return;
+                    }
+                    marker.setLatLng(path[index]);
+                    map.panTo(path[index]);
+                    index++;
+                }, speed);
             }
 
             simulate();
         }
+
 
         // Email truncation
         const emailInput = document.getElementById('mail');
