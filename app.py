@@ -1169,13 +1169,13 @@ def rider_registration():
             flash("Invalid occupation.", "danger")
             return redirect(url_for('rider_registration'))
 
-        if not is_valid_name(guarantor_state):
-            flash("Invalid state.", "danger")
-            return redirect(url_for('rider_registration'))
+        # if not is_valid_name(guarantor_state):
+        #     flash("Invalid state.", "danger")
+        #     return redirect(url_for('rider_registration'))
 
-        if not is_valid_name(rider_state):
-            flash("Invalid state.", "danger")
-            return redirect(url_for('rider_registration'))
+        # if not is_valid_name(rider_state):
+        #     flash("Invalid state.", "danger")
+        #     return redirect(url_for('rider_registration'))
 
         if not is_valid_address(residential_address):
             flash("Residential address contains invalid characters.", "danger")

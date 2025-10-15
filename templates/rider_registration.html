@@ -62,13 +62,53 @@
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-12">
                                     <label for="rider_city" class="form-label">City:</label>
-                                    <p><input type="text" id="rider_city" name="rider_city" class="form-control border focus-ring" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);" placeholder="City" pattern="^[A-Za-z\s\-']{2,50}$" title="Only letters, spaces, and hyphens are allowed." required></p>        
+                                    <p><input type="text" id="rider_city" name="rider_city" class="form-control border focus-ring" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);" placeholder="City" pattern="^[A-Za-z\s\-']{2,50}$" title="Only letters, spaces, and hyphens are allowed." required></p>     
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <div class="col-lg-6 col-md-6 col-12">
                                     <label for="rider_state" class="form-label">State:</label>
-                                    <p><input type="text" id="rider_state" name="rider_state" class="form-control border focus-ring" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);" placeholder="Your state" pattern="^[A-Za-z\s\-']{2,50}$" title="Only letters, spaces, and hyphens are allowed." required></p>        
+                                    <!-- <p><input type="text" id="rider_state" name="rider_state" class="form-control border focus-ring" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);" placeholder="Your state" pattern="^[A-Za-z\s\-']{2,50}$" title="Only letters, spaces, and hyphens are allowed." required></p> -->
+                                    <select id="rider_state" name="rider_state" class="form-select form-control border focus-ring" style="--bs-border-color :#EE940D; --bs-focus-ring-color :rgba(238, 148, 13, 0.48);" required>
+                                        <option value="" disabled selected>Enter your state</option>
+                                        <option value="Abuja">Abuja</option>
+                                        <option value="Abia">Abia</option>
+                                        <option value="Adamawa">Adamawa</option>
+                                        <option value="Akwa Ibom">Akwa Ibom</option>
+                                        <option value="Anambra">Anambra</option>
+                                        <option value="Bauchi">Bauchi</option>
+                                        <option value="Bayelsa">Bayelsa</option>
+                                        <option value="Benue">Benue</option>
+                                        <option value="Borno">Borno</option>
+                                        <option value="Cross River">Cross River</option>
+                                        <option value="Delta">Delta</option>
+                                        <option value="Ebonyi">Ebonyi</option>
+                                        <option value="Edo">Edo</option>
+                                        <option value="Ekiti">Ekiti</option>
+                                        <option value="Enugu">Enugu</option>
+                                        <option value="Gombe">Gombe</option>
+                                        <option value="Imo">Imo</option>
+                                        <option value="Jigawa">Jigawa</option>
+                                        <option value="Kaduna">Kaduna</option>
+                                        <option value="Kano">Kano</option>
+                                        <option value="Katsina">Katsina</option>
+                                        <option value="Kebbi">Kebbi</option>
+                                        <option value="Kogi">Kogi</option>
+                                        <option value="Kwara">Kwara</option>
+                                        <option value="Lagos">Lagos</option>
+                                        <option value="Nasarawa">Nasarawa</option>
+                                        <option value="Niger">Niger</option>
+                                        <option value="Ogun">Ogun</option>
+                                        <option value="Ondo">Ondo</option>
+                                        <option value="Osun">Osun</option>
+                                        <option value="Oyo">Oyo</option>
+                                        <option value="Plateau">Plateau</option>
+                                        <option value="Rivers">Rivers</option>
+                                        <option value="Sokoto">Sokoto</option>
+                                        <option value="Taraba">Taraba</option>
+                                        <option value="Yobe">Yobe</option>
+                                        <option value="Zamfara">Zamfara</option>
+                                    </select>
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-12">
                                     <label for="nin" class="form-label">National Identification Number (NIN):</label>
@@ -120,7 +160,47 @@
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-12">
                                     <label for="guarantor_state" class="form-label">State of Origin:</label>
-                                    <p><input type="text" id="guarantor_state" name="guarantor_state" class="form-control border focus-ring" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);" placeholder="Your state of residence" pattern="^[A-Za-z\s\-']{2,50}$" title="Only letters, spaces and hyphens are allowed." required></p>        
+                                    <!-- <p><input type="text" id="guarantor_state" name="guarantor_state" class="form-control border focus-ring" style="--bs-border-color: #EE940D; --bs-focus-ring-color: rgba(238, 148, 13, 0.48);" placeholder="Your state of residence" pattern="^[A-Za-z\s\-']{2,50}$" title="Only letters, spaces and hyphens are allowed." required></p> -->
+                                    <select id="guarantor_state" name="guarantor_state" class="form-select form-control border focus-ring" style="--bs-border-color :#EE940D; --bs-focus-ring-color :rgba(238, 148, 13, 0.48);" required>
+                                        <option value="" disabled selected>Enter your state</option>
+                                        <option value="Abuja">Abuja</option>
+                                        <option value="Abia">Abia</option>
+                                        <option value="Adamawa">Adamawa</option>
+                                        <option value="Akwa Ibom">Akwa Ibom</option>
+                                        <option value="Anambra">Anambra</option>
+                                        <option value="Bauchi">Bauchi</option>
+                                        <option value="Bayelsa">Bayelsa</option>
+                                        <option value="Benue">Benue</option>
+                                        <option value="Borno">Borno</option>
+                                        <option value="Cross River">Cross River</option>
+                                        <option value="Delta">Delta</option>
+                                        <option value="Ebonyi">Ebonyi</option>
+                                        <option value="Edo">Edo</option>
+                                        <option value="Ekiti">Ekiti</option>
+                                        <option value="Enugu">Enugu</option>
+                                        <option value="Gombe">Gombe</option>
+                                        <option value="Imo">Imo</option>
+                                        <option value="Jigawa">Jigawa</option>
+                                        <option value="Kaduna">Kaduna</option>
+                                        <option value="Kano">Kano</option>
+                                        <option value="Katsina">Katsina</option>
+                                        <option value="Kebbi">Kebbi</option>
+                                        <option value="Kogi">Kogi</option>
+                                        <option value="Kwara">Kwara</option>
+                                        <option value="Lagos">Lagos</option>
+                                        <option value="Nasarawa">Nasarawa</option>
+                                        <option value="Niger">Niger</option>
+                                        <option value="Ogun">Ogun</option>
+                                        <option value="Ondo">Ondo</option>
+                                        <option value="Osun">Osun</option>
+                                        <option value="Oyo">Oyo</option>
+                                        <option value="Plateau">Plateau</option>
+                                        <option value="Rivers">Rivers</option>
+                                        <option value="Sokoto">Sokoto</option>
+                                        <option value="Taraba">Taraba</option>
+                                        <option value="Yobe">Yobe</option>
+                                        <option value="Zamfara">Zamfara</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-2">
@@ -286,7 +366,7 @@
       return;
     }
 
-    if (!stateRegex.test(rider_state) || !stateRegex.test(guarantor_state) || !stateRegex.test(rider_city)) {
+    if (!stateRegex.test(rider_city)) {
       alert("Invalid state or city.");
       e.preventDefault();
       return;

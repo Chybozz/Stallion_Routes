@@ -149,11 +149,24 @@ if (window.location.pathname.includes('dashboard')) {
         }
 
         // Transport fee calculation (unchanged)
+        function calculateTransportFee(packageWorth) {
+            if (packageWorth <= 10000) {
+                return Math.floor(0.10 * packageWorth) + 4500;
+            } else if (packageWorth <= 50000) {
+                return Math.floor(0.07 * packageWorth) + 4500;
+            } else if (packageWorth <= 100000) {
+                return Math.floor(0.05 * packageWorth) + 4500;
+            } else if (packageWorth <= 500000) {
+                return Math.floor(0.03 * packageWorth) + 4500;
+            } else {
+                return Math.floor(0.02 * packageWorth) + 4500;
+            }
+        }
         // for waybill type
         document.getElementById('waybillpackworth').addEventListener('input', function() {
             const sanitizedValue = this.value.replace(/,/g, '');
             const packageWorth = parseFloat(sanitizedValue) || 0;
-            const transportFee = Math.floor(0.15 * packageWorth) + 1250;
+            const transportFee = calculateTransportFee(packageWorth);
             document.getElementById('transport_fee').textContent = transportFee.toLocaleString();
         });
 
@@ -166,7 +179,7 @@ if (window.location.pathname.includes('dashboard')) {
         document.getElementById('handoffpackworth').addEventListener('input', function() {
             const sanitizedValue = this.value.replace(/,/g, '');
             const packageWorth = parseFloat(sanitizedValue) || 0;
-            const transportFee = Math.floor(0.15 * packageWorth) + 1250;
+            const transportFee = calculateTransportFee(packageWorth);
             document.getElementById('transport_fee').textContent = transportFee.toLocaleString();
         });
 
@@ -179,7 +192,7 @@ if (window.location.pathname.includes('dashboard')) {
         document.getElementById('foodworth').addEventListener('input', function() {
             const sanitizedValue = this.value.replace(/,/g, '');
             const packageWorth = parseFloat(sanitizedValue) || 0;
-            const transportFee = Math.floor(0.15 * packageWorth) + 1250;
+            const transportFee = calculateTransportFee(packageWorth);
             document.getElementById('transport_fee').textContent = transportFee.toLocaleString();
         });
 
