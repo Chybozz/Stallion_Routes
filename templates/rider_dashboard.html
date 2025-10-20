@@ -116,7 +116,7 @@
                                         <input type="hidden" name="reqID" value="{{ request[0] }}">
                                         <div class="card-footer text-end">
                                             <button type="button" name="action" value="accept" class="btn btn-sm btn-stallion text-card accept-btn" data-request-id="{{ request[0] }}">Accept Request</button>
-                                            <button type="button" name="action" value="track" class="btn btn-sm btn-stallion text-card track-btn" data-request-id="{{ request[0] }}">Track Package</button>
+                                            <button type="button" name="action" value="track" disabled class="btn btn-sm btn-stallion text-card track-btn" data-request-id="{{ request[0] }}">Track Package</button>
                                         </div>
                                     </div>
                                     {% endfor %}
@@ -167,7 +167,7 @@
                                             {% else %}
                                                 <button type="button" value="deliver" class="btn btn-sm btn-danger text-card deliver-btn" data-request-id="{{ request[0] }}">Mark as Delivered</button>
                                             {% endif %}
-                                            <button type="button" value="track" class="btn btn-sm btn-stallion text-card tracks-btn" data-request-id="{{ request[0] }}" data-pickup="{{ request[7] }}" data-delivery="{{ request[8] }}">Track Package</button>
+                                            <button type="button" value="track" disabled class="btn btn-sm btn-stallion text-card tracks-btn" data-request-id="{{ request[0] }}" data-pickup="{{ request[7] }}" data-delivery="{{ request[8] }}">Track Package</button>
                                         </div>
                                     </div>
                                     {% endfor %}
