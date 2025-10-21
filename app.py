@@ -170,7 +170,7 @@ def send_mail_to_rider():
 
                 <p style="margin: 30px 0;">
                 <a href="{registration_link}" style="background-color: #2e86de; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                    Verify Email
+                    Register as a Rider
                 </a>
                 </p>
 
