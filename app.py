@@ -2303,6 +2303,13 @@ def deliver():
                 """, ("awaiting confirmation", transaction_time, request_id, rider_id))
                 connection.commit()
 
+                # select the amount from transactions table
+                cursor.execute("""
+                    SELECT amount FROM transactions WHERE request_id = %s AND rider_id = %s
+                """, (request_id, rider_id))
+                transaction_amount = cursor.fetchone()
+                transaction_amount = transaction_amount[0] if transaction_amount else 0.00
+
                 # select the rider's vehicle from the riders table
                 cursor.execute("""
                     SELECT vehicle FROM riders WHERE rider_id = %s
@@ -2313,9 +2320,9 @@ def deliver():
                 print(f"Vehicle: {vehicle}, Rider ID: {rider_id}")
 
                 if vehicle == 'bike':
-                    delivery_amount = 2800.00
+                    delivery_amount = 0.35 * transaction_amount # 35% of transaction amount
                 elif vehicle == 'keke':
-                    delivery_amount = 3800.00
+                    delivery_amount = 0.35 * transaction_amount # 35% of transaction amount
                 else:
                     delivery_amount = 0.00  # fallback in case something went wrong
 
