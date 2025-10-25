@@ -2361,6 +2361,7 @@ def rider_settings():
     current_date = datetime.now().strftime('%Y-%m-%d')
     current_time = datetime.now().strftime('%H:%M:%S')
 
+    # Get current profile picture filename
     connection = get_db_connection()
     with connection.cursor() as cursor:
         sql = "SELECT rider_photo FROM riders WHERE rider_email= %s"
@@ -2542,11 +2543,12 @@ def admin_rider():
 
     # Select rider's details
     cursor.execute("""
-        SELECT id, rider_id, rider_name, rider_email, rider_number, 
+        SELECT id, rider_id, rider_photo, rider_name, rider_email, rider_number, 
             rider_address, city, state, account_number, bank_name
         FROM riders
     """)
     rider_data = cursor.fetchall()
+    # rider_id = rider_data[0]['rider_id'] if rider_data else None
 
     cursor.execute("SELECT COUNT(*) AS count FROM delivery_requests WHERE status = 'pending'")
     total_pending = cursor.fetchone()['count']
@@ -2565,6 +2567,16 @@ def admin_rider():
 
     cursor.close()
     connection.close()
+
+    # Get current profile picture filename
+    """ connection = get_db_connection()
+    with connection.cursor() as cursor:
+        sql = "SELECT rider_photo FROM riders WHERE rider_id= %s"
+        cursor.execute(sql, (rider_id,))
+        filename = cursor.fetchone()
+        if filename:
+            filename = filename[0]
+    connection.close() """
 
     return render_template('admin_rider.html', table_data=table_data, rider_data=rider_data,  total_pending=total_pending, total_intransit=total_intransit, total_delivered=total_delivered, 
         total_customers=total_customers, total_riders=total_riders, current_date=current_date, current_time=current_time)

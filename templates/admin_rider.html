@@ -147,6 +147,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th>Photo</th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Address</th>
@@ -159,6 +160,9 @@
                                     {% for request in rider_data %}
                                         <tr>
                                             <td>{{ request.id }}</td>
+                                            <td>
+                                                <img src="{{ url_for('static', filename='uploads/' ~ request.rider_photo) }}" alt="Rider Photo" width="50" height="50" class="rounded-circle">
+                                            </td>
                                             <td>{{ request.rider_name }}
                                                 <p class="m-0">{{ request.rider_number }}</p>
                                             </td>
