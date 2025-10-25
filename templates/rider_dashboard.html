@@ -109,6 +109,9 @@
                                             <p><strong>Pickup Address:</strong> {{ request[7] }}</p>
                                             <p><strong>Delivery Address:</strong> {{ request[8] }}</p>
                                             <p><strong>Package:</strong> {{ request[9] }}</p>
+                                            {% if request[1] == 'waybill' %}
+                                            <p><strong>Pickup / Tracking ID:</strong> {{ request[13] }}</p>
+                                            {% endif %}
                                             <p><strong>Date:</strong> {{ request[10] }}</p>
                                             <p><strong>Time:</strong> {{ request[11] }}</p>
                                             <p><strong>Status:</strong> {{ request[12] }}</p>
@@ -155,6 +158,9 @@
                                             <p><strong>Pickup Address:</strong> {{ request[7] }}</p>
                                             <p><strong>Delivery Address:</strong> {{ request[8] }}</p>
                                             <p><strong>Package:</strong> {{ request[9] }}</p>
+                                            {% if request[1] == 'waybill' %}
+                                            <p><strong>Pickup / Tracking ID:</strong> {{ request[13] }}</p>
+                                            {% endif %}
                                             <p><strong>Date:</strong> {{ request[10] }}</p>
                                             <p><strong>Time:</strong> {{ request[11] }}</p>
                                             <p><strong>Status:</strong> {{ request[12] }}</p>

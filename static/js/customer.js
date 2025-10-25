@@ -151,9 +151,9 @@ if (window.location.pathname.includes('dashboard')) {
         // Transport fee calculation (unchanged)
         function calculateTransportFee(packageWorth) {
             if (packageWorth <= 10000) {
-                return Math.floor(0.10 * packageWorth) + 4500;
+                return Math.floor(0.10 * packageWorth) + 3000;
             } else if (packageWorth <= 50000) {
-                return Math.floor(0.07 * packageWorth) + 4500;
+                return Math.floor(0.07 * packageWorth) + 4000;
             } else if (packageWorth <= 100000) {
                 return Math.floor(0.05 * packageWorth) + 4500;
             } else if (packageWorth <= 500000) {

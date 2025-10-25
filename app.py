@@ -2007,7 +2007,7 @@ def dashboard():
         cursor.execute("""
             SELECT dr.request_id, dr.type, dr.recipient_name, dr.recipient_number, dr.restaurant_name, 
                 dr.pickup_address, dr.delivery_address, dr.package_desc, dr.date_requested, 
-                dr.time_requested, dr.status, tr.rider_name, tr.rider_number
+                dr.time_requested, dr.status, tr.rider_name, tr.rider_number, dr.pickup_number
             FROM delivery_requests dr 
             LEFT JOIN transactions tr ON dr.request_id = tr.request_id
             WHERE (dr.status IN ('pending', 'in transit') OR tr.status = 'accepted') 
@@ -2231,7 +2231,7 @@ def rider_dashboard():
         cursor.execute("""
             SELECT request_id, type, customer_name, customer_number, recipient_name, recipient_number, restaurant_name, 
                 pickup_address, delivery_address, package_desc, date_requested, 
-                time_requested, status, state
+                time_requested, status, pickup_number, state
             FROM delivery_requests
             WHERE (status IN ('pending')) AND state = %s
         """, (state,))
@@ -2241,7 +2241,7 @@ def rider_dashboard():
         cursor.execute("""
             SELECT dr.request_id, dr.type, dr.customer_name, dr.customer_number, dr.recipient_name, dr.recipient_number, 
                 dr.restaurant_name, dr.pickup_address, dr.delivery_address, dr.package_desc, dr.date_requested, 
-                dr.time_requested, tr.status
+                dr.time_requested, tr.status, dr.pickup_number
             FROM delivery_requests dr
             LEFT JOIN transactions tr ON dr.request_id = tr.request_id
             WHERE dr.status = 'in transit' AND tr.rider_id = %s
