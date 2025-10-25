@@ -299,18 +299,22 @@ def login():
         cursor.close()
         connection.close()
 
-        if user and check_password_hash(user['password'], password): # Verify user password
-            if not user['is_verified']:
-                session['verify'] = "Not Verified"
-            session['user_id'] = user['id']
-            session['full_name'] = user['name']
-            session['email'] = user['email']
-            session['phone'] = user['phone']
-            flash('Welcome back!', 'success')
-            return redirect(url_for('dashboard'))  # Create a dashboard route
+        if user['roles'] == 'customer':
+            if user and check_password_hash(user['password'], password): # Verify user password
+                if not user['is_verified']:
+                    session['verify'] = "Not Verified"
+                session['user_id'] = user['id']
+                session['full_name'] = user['name']
+                session['email'] = user['email']
+                session['phone'] = user['phone']
+                flash('Welcome back!', 'success')
+                return redirect(url_for('dashboard'))  # Create a dashboard route
+            else:
+                flash('Invalid email or password', 'danger')
+                return redirect(url_for('login'))
         else:
-            flash('Invalid email or password', 'danger')
-            return redirect(url_for('login'))
+            flash('Access denied. Please try again.', 'danger')
+            return redirect(url_for('rider_login'))
 
     site_key = os.getenv('RECAPTCHA_SITE_KEY')
     return render_template('login.html', site_key=site_key)
@@ -2548,7 +2552,6 @@ def admin_rider():
         FROM riders
     """)
     rider_data = cursor.fetchall()
-    # rider_id = rider_data[0]['rider_id'] if rider_data else None
 
     cursor.execute("SELECT COUNT(*) AS count FROM delivery_requests WHERE status = 'pending'")
     total_pending = cursor.fetchone()['count']
@@ -2567,16 +2570,6 @@ def admin_rider():
 
     cursor.close()
     connection.close()
-
-    # Get current profile picture filename
-    """ connection = get_db_connection()
-    with connection.cursor() as cursor:
-        sql = "SELECT rider_photo FROM riders WHERE rider_id= %s"
-        cursor.execute(sql, (rider_id,))
-        filename = cursor.fetchone()
-        if filename:
-            filename = filename[0]
-    connection.close() """
 
     return render_template('admin_rider.html', table_data=table_data, rider_data=rider_data,  total_pending=total_pending, total_intransit=total_intransit, total_delivered=total_delivered, 
         total_customers=total_customers, total_riders=total_riders, current_date=current_date, current_time=current_time)
