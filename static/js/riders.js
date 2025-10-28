@@ -222,12 +222,12 @@ if (window.location.pathname.includes('rider_dashboard')) {
 
         // Play a notification sound when a new delivery request is received
         function playNotificationSound() {
-            let audio = new Audio('https://www.myinstants.com/media/sounds/bell-notification.mp3');
+            let audio = new Audio('/static/audio/notification.mp3');
             audio.play();
         }
 
         // Connect to the WebSocket server
-        const socket = io('http://127.0.0.1:5000'); // Update this URL if your server is hosted differently
+        const socket = io('https://stallionroutes.com'); // Update this URL if your server is hosted differently
 
         // Initialize the notification count
         let notificationCount = parseInt(document.getElementById('notify').innerText);
