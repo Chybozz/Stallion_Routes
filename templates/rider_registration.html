@@ -233,24 +233,11 @@
                                 <!-- Update Profile Picture End -->
                             </div>
 
-                            <!-- Hidden field for reCAPTCHA token -->
-                            <input type="hidden" id="recaptcha_token" name="recaptcha_token">
-
                             <div class="mb-4 p-1">
                                 <button type="submit" class="btn btn-md btn-stallion">Register</button>
                             </div>
                         </div>
                     </form>
-
-                    <!-- Google reCAPTCHA v3 -->
-                    <script src="https://www.google.com/recaptcha/api.js?render={{ site_key }}"></script>
-                    <script>
-                    grecaptcha.ready(function() {
-                        grecaptcha.execute('{{ site_key }}', {action: 'rider_registration'}).then(function(token) {
-                            document.getElementById('recaptcha_token').value = token;
-                        });
-                    });
-                    </script>
 
                     <div class="text-center mt-3">
                         <p>Have an account? <a href="{{ url_for('rider_login') }}" class="text-decoration-none text-color">Login</a></p>

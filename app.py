@@ -1056,44 +1056,6 @@ def rider_registration():
         guarantor_state = request.form['guarantor_state']
         recaptcha_token = request.form.get('recaptcha_token')
 
-        # Verify reCAPTCHA
-        # --- reCAPTCHA verification ---
-        secret_key = os.getenv('RECAPTCHA_SECRET_KEY')
-        if not secret_key:
-            flash("reCAPTCHA not configured.", "danger")
-            return redirect(url_for('rider_registration'))
-
-        try:
-            response = requests.post(
-                'https://www.google.com/recaptcha/api/siteverify',
-                data={'secret': secret_key, 'response': recaptcha_token}
-            ).json()
-
-            # Debug (optional during testing)
-            # flash(str(response), "info")
-
-            # ✅ Check if verification succeeded
-            if not response.get('success'):
-                flash("reCAPTCHA verification failed. Please try again.", "danger")
-                return redirect(url_for('rider_registration'))
-
-            # ✅ If score exists (v3), check threshold
-            if 'score' in response and response['score'] < 0.5:
-                flash("Suspicious activity detected (low reCAPTCHA score). Please try again.", "danger")
-                return redirect(url_for('rider_registration'))
-
-            # ✅ Optional: Ensure hostname matches your domain
-            expected_domain = "stallionroutes.com"
-            if response.get("hostname") != expected_domain:
-                flash("reCAPTCHA hostname mismatch. Please try again.", "danger")
-                return redirect(url_for('rider_registration'))
-
-        except Exception as e:
-            flash(f"reCAPTCHA verification error: {str(e)}", "danger")
-            return redirect(url_for('rider_registration'))
-
-        # --- End reCAPTCHA verification ---
-
         # Input validation functions
         # --- Helper validation functions ---
         def is_valid_name(name):
@@ -1379,8 +1341,8 @@ def rider_registration():
             cursor.close()
             connection.close()
 
-    site_key = os.getenv('RECAPTCHA_SITE_KEY')
-    return render_template('rider_registration.html', site_key=site_key)
+    # site_key = os.getenv('RECAPTCHA_SITE_KEY')
+    return render_template('rider_registration.html')
 
 @app.route('/verify_rider/<token>')
 def verify_rider_email(token):
