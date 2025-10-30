@@ -152,7 +152,9 @@
                                                         <button type="submit" class="btn btn-success btn-sm">Pay Now</button>
                                                     </form>
                                                 {% else %}
-                                                    <span class="text-muted">Paid</span>
+                                                    {% if payment.reference %}
+                                                        <span class="text-muted">Paid</span>
+                                                    {% endif %}
                                                 {% endif %}
                                             </td>
                                         </tr>
